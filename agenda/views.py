@@ -25,6 +25,9 @@ def index(request):
     # Get the next meeting
     next_meeting = Meeting.objects.filter(starttime__range=[startdate, enddate]).first()
 
+    if next_meeting == None:
+        return HttpResponseRedirect(reverse("agenda:login"))
+
     # Redirect to views.meeting to load the individual meeting page for the next meeting
     return HttpResponseRedirect(reverse("agenda:meeting", args=(next_meeting.id,)))
 
