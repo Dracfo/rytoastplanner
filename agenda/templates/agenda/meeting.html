@@ -1,0 +1,362 @@
+{% extends 'agenda/layout.html' %}
+{% load static %}
+
+{% block title %}
+    index
+{% endblock %}
+
+{% block body %}
+    
+    <br>
+
+    <div class="container-xl">
+        
+        <div class="container col-title" style="position: relative">
+            <h1>Ryerson Toastmasters</h1>
+            <h3>Meeting: {{ meeting.starttime }} EST</h3>
+            <p style="position: absolute; top: 5px; right: 10px;"><b>Club: </b>01474196</p>
+        </div>
+
+        <br>
+
+        <!--Main section of page-->
+        <div class="row">
+
+            <!--Sidebar-->
+                <div class="col-3 sidebar">
+
+                    <!--Sidebar group with meeting information-->
+                    <table class="table table-hover">
+                        <tr>
+                            <td>
+                                <b>Word of the Day:</b>
+                            </td>
+                            <td>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Meeting Theme:</b>
+                            </td>
+                            <td>
+                                
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!--Sidebar group with the role sign ups and hodlers-->
+                    <table class="table table-hover">
+                        {% for key, value in rolelist.items %}
+                            <tr>
+                                <td>
+                                    <b>{{ key }}</b>
+                                </td>
+                                <td>
+                                    {% if value == None and user.is_authenticated%}
+                                        <button onclick="role_sign_up('{{ request.user.username }}', '{{ key }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                    {% else %}
+                                        <p>{{ value }}</p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+
+                    <!--Sidebar List of the Links-->
+                    <table class="table table-hover">
+                        <tr>
+                            <td>
+                                <b>Club Website</b>
+                            </td>
+                            <td>
+                                <a href="https://www.ryersontoastmasters.ca" target="_blank"><p>Visit</p></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>TI Website</b>
+                            </td>
+                            <td>
+                                <a href="https://www.toastmasters.org" target="_blank"><p>Visit</p></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Basecamp</b>
+                            </td>
+                            <td>
+                                <a href="https://www.toastmasters.org/pathways/basecamporpathways" target="_blank"><p>Visit</p></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Review the Club</b>
+                            </td>
+                            <td>
+                                <a href="https://g.page/r/Cc_4p_ynWVhLEAE/review" target="_blank"><p>Review</p></a>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+
+            <!--Table for agenda and roles-->
+            <div class="col-9">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <th>Time</th>
+                        <th>Role</th>
+                        <th>Presenter</th>
+                        <th>Event</th>
+                        <th>Duration</th>
+                    </thead>
+                    <tbody>
+                        
+                        <!--Loop through the event list and print out agenda-->
+                        {% for key, value in eventlist.items %}
+                            <tr>
+                                <!--Start time--><td scope="row"><b>{{ value.1 }}</b></td>
+                                <!--Role--><td>{{ value.2 }}</td>
+                                <!--Presenter--><td>
+                                    {% if value.3 == None and user.is_authenticated %}
+                                        <button onclick="role_sign_up('{{ request.user.username }}', '{{ value.2 }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                    {% else %}
+                                        {{ value.3 }}
+                                        {% if user.executive and value.2 != "" and value.2 != "Ballot Counter" %}
+                                            <button class="btn btn-outline-danger btn-sm" onclick="role_sign_up('None', '{{ value.2 }}', '{{ meeting.id }}');" id="{{ role }}" style="margin: auto!important">Delete</button>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <!--Event description--><td>{{ key }}</td>
+                                <!--Duration--><td>{{ value.4 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <a href="{% url 'agenda:edit_meeting' id %}" class="btn btn-primary">Edit Meeting</a>
+
+
+
+                <!--Attendee and Absentee information-->
+                <hr>
+                <h2>Member Attendence Information</h2>
+                <div class="row">
+                    <div class="col-sm-4">
+                      <div class="card">
+                        <div class="card-body">
+                          <h5 class="card-title">Confirmed Attendence</h5>
+                          {% for attendee in confirmed_attendees %}
+                            <p class="card-text" id="{{ attendee }}_attendence">{{ attendee }}</p>
+                          {% endfor %}
+                          <p id="{{ username }}_confirm_attendence"></p>
+                          {% if not confirmed_attendees %}
+                            <p class="card-text">No Members</p>
+                          {% endif %}
+                          <button href="" id="confirm_attendence_btn" class="btn btn-success" value="{{ username }}">Confirm Your Attendence</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="card">
+                        <div class="card-body">
+                          <h5 class="card-title">Unknown Attendence</h5>
+                          {% for attendee in unknown_attendees %}
+                            <p class="card-text" id="{{ attendee }}_attendence">{{ attendee }}</p>
+                          {% endfor %}
+                          {% if not unknown_attendees %}
+                            <p class="card-text">No Members</p>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="card">
+                          <div class="card-body">
+                            <h5 class="card-title">Not Attending</h5>
+                            {% for attendee in absentees %}
+                                <p class="card-text" id="{{ attendee }}_attendence">{{ attendee }}</p>
+                            {% endfor %}
+                            <p id="{{ username }}_decline_attendence"></p>
+                            {% if not absentees %}
+                                <p class="card-text">No Members</p>
+                            {% endif %}
+                            <button href="" id="decline_attendence_btn" class="btn btn-danger" value="{{ username }}">Confirm NOT Attending</button>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listeners
+        document.querySelector('#confirm_attendence_btn').addEventListener('click', () => confirm_attendence());
+        document.querySelector('#decline_attendence_btn').addEventListener('click', () => decline_attendence());
+    });
+
+
+    function confirm_attendence(){
+        // Get username
+        const username = document.querySelector('#confirm_attendence_btn').value;
+        const meeting_id = {{ meeting.id }};
+        
+        // Pass input to API
+        fetch('/attendence', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'user': username,
+                'meeting_id': meeting_id,
+                'status': 'T'
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Print result
+            console.log(result);
+            const action = result[0]['action'];
+
+            // Update the attendence list buttons
+            document.querySelector('#confirm_attendence_btn').style.display = 'none';
+            document.querySelector('#decline_attendence_btn').style.display = 'block';
+
+            // Update the attendence lists
+            document.querySelector(`#${username}_attendence`).style.display = 'none';
+            document.querySelector(`#${username}_decline_attendence`).style.display = 'none';
+            document.querySelector(`#${username}_confirm_attendence`).style.display = 'block';
+            document.querySelector(`#${username}_confirm_attendence`).innerHTML = username;
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+
+
+
+        return false;
+    }
+
+
+    function decline_attendence(){
+        // Get username
+        const username = document.querySelector('#decline_attendence_btn').value;
+        const meeting_id = {{ meeting.id }};
+        
+        // Pass input to API
+        fetch('/attendence', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'user': username,
+                'meeting_id': meeting_id,
+                'status': 'F'
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Print result
+            console.log(result);
+            const action = result[0]['action'];
+
+            // Update the attendence list buttons
+            document.querySelector('#confirm_attendence_btn').style.display = 'block';
+            document.querySelector('#decline_attendence_btn').style.display = 'none';
+
+            // Update the attendence lists
+            document.querySelector(`#${username}_attendence`).style.display = 'none';
+            document.querySelector(`#${username}_confirm_attendence`).style.display = 'none';
+            document.querySelector(`#${username}_decline_attendence`).style.display = 'block';
+            document.querySelector(`#${username}_decline_attendence`).innerHTML = username;
+        });
+
+        return false;
+    }
+
+    function role_sign_up(username, role, meeting_id) {
+
+        console.log(username, role, meeting_id);
+
+        // Call sign up function
+        sign_up(username, role, meeting_id);
+
+        // Refresh the page
+        window.location.reload(true);
+
+        wait(50);
+
+        return false;
+    }
+
+    function sign_up(username, role, meeting_id){
+        
+        console.log(username, role, meeting_id);
+
+        fetch('/sign_up', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'user': username,
+                'role': role,
+                'meeting_id': meeting_id
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Print result
+            console.log(result);
+            return result;
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+
+        return false;
+    }
+
+    // Wait function from https://stackoverflow.com/questions/14226803/wait-5-seconds-before-executing-next-line
+    function wait(ms){
+        var start = new Date().getTime();
+        var end = start;
+        while(end < start + ms) {
+            end = new Date().getTime();
+        }
+    }
+
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+{% endblock %}

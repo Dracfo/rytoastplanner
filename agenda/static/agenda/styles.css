@@ -1,0 +1,173 @@
+/*Style the page*/
+body{
+    background-color: #A9B2B1;
+    padding-bottom: 50px;
+}
+
+.col-title{
+    background-color: white;
+    padding: 0.5rem;
+    box-shadow: 0px 1px 4px rgb(0,0,0,0.4);
+    border-radius: 6px!important;
+}
+
+
+/*Style the navbar*/
+nav{
+    background: linear-gradient(to bottom,#892c3b 0%,#69212d 100%);
+    box-shadow: 0px 1px 4px rgb(0,0,0,0.4);
+    position: -webkit-sticky; /* Safari */
+    position: sticky!important;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+}
+
+nav a{
+    color: white!important;
+    transition: color 0.2s ease-in-out;
+}
+
+nav a:hover{
+    color: #F2DF74!important;
+    transition: color 0.2s ease-in-out;
+}
+
+nav svg{
+    height: 40px;
+    fill: white;
+    transition: fill 0.2s ease-in-out;
+}
+
+nav svg:hover{
+    fill: #F2DF74!important;
+    transition: fill 0.2s ease-in-out;
+}
+
+nav .navbar-brand{
+    padding: 0;
+}
+
+
+
+/*Style the page text*/
+h1{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+
+h2{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+
+h3{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+h4{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+h5{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+p{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+}
+
+b{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+input{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+}
+
+.btn{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    font-size: 0.8rem;
+}
+
+
+
+
+/*Style the tables*/
+.table{
+    background-color: white;
+    box-shadow: 0px 1px 4px rgb(0,0,0,0.4);
+    border-radius: 6px!important;
+    -webkit-border-radius:6px;
+    -moz-border-radius:6px;
+    overflow: hidden!important;
+}
+
+th{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    background-color: #F5F6FA;
+    border-top: none!important;
+    position: sticky!important;
+    top: 55px;
+}
+
+td{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+}
+
+
+
+
+/*Style the sidebar*/
+.sidebar{
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.sidebar .table td{
+    padding: 0.1rem 0.5rem!important;
+    max-width: 25%;
+    border-top: none;
+}
+
+.sidebar .table{
+    max-width: 100%;
+}
+
+.sidebar p{
+    margin-bottom: 0;
+    font-size: 0.7rem;
+    vertical-align: middle;
+    display: inline;
+}
+
+.sidebar b{
+    font-size: 0.7rem;
+    vertical-align: middle;
+}
+
+
+
+/*Style the cards*/
+.card{
+    background-color: white;
+    box-shadow: 0px 1px 4px rgb(0,0,0,0.4);
+    border-radius: 6px!important;
+}
+
+
+
+/*Misc Styles*/
+hr{
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
