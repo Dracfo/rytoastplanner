@@ -1,1 +1,1 @@
-web: gunicorn main_folder.wsgi
+web: gunicorn RolesScheduler.wsgi
