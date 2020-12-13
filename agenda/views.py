@@ -151,7 +151,7 @@ def meeting_list(request):
         # Get the table topics master for the meeting
         role_query = Rolelist.objects.filter(meeting=meeting).values('ttmaster')
         if role_query[0]['ttmaster'] == None:
-            toastmaster = None
+            ttmaster = None
         else:
             ttmaster = User.objects.get(id=role_query[0]['ttmaster'])
 
