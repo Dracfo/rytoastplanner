@@ -14,6 +14,7 @@ urlpatterns = [
     path("profile/<id>", views.profile, name="profile"),
     path("meeting/<id>", views.meeting, name="meeting"),
     path("edit_meeting/<id>", views.edit_meeting, name="edit_meeting"),
+    path("create_meeting", views.create_meeting, name="create_meeting"),
     path("meeting_list", views.meeting_list, name="meeting_list"),
 
     # API Routes

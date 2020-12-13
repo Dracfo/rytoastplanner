@@ -40,6 +40,20 @@ def meeting(request, id):
     
     roles = Rolelist.objects.filter(meeting=meeting[0])
     rolelist = meeting_roles_list(meeting[0])
+    print(rolelist)
+
+    # Get the role recommednations for the selected meeting
+    role_recommendations = role_recommendation_list(meeting[0])
+        
+    # Add role recommendations to the rolelist
+    # Iterate through all the roles in the rolelist
+    for role in rolelist:
+
+        # If no one is assigned to the role, get a list of recommendations. Else skip to next role
+        if rolelist[role] == None:
+
+            # Add recommednations to the rolelist
+            rolelist[role] = ['No Member Assigned', role_recommendations[role]]
 
     attendees = Attendee.objects.filter(meeting=meeting[0])
     confirmed_attendees = []
@@ -57,26 +71,26 @@ def meeting(request, id):
     # Create list of events that will occur during the meeting
     eventlist = {
         'Call meeting to order and cover meeting rules': [1, 0, "Sergeant At Arms", roles[0].saa, "30-45-60 sec"],
-        'Welcome guests and introduce Toastmasters': [2, 0, "Chair", roles[0].chair, "1-1:30-2 min"],
-        'Introduce the Timer, Ah Counter, Quizmaster, and General Evaluator': [5, 0, "Toastmaster", roles[0].toastmaster, "3-4-5 min"],
-        'Speech 1': [7, 0, "Speaker 1", roles[0].speaker1, "5-6-7 min"],
-        'Speech 2': [7, 0, "Speaker 2", roles[0].speaker2, "5-6-7 min"],
-        'Speech 3': [7, 0, "Speaker 3", roles[0].speaker3, "5-6-7 min"],
-        'Best Speech Voting': [1, 0, "Ballot Counter", roles[0].facilitator, "30-45-60 sec"],
-        'Evaluation 1': [3, 0, "Evaluator 1", roles[0].eval1, "2-2:30-3 min"],
-        'Evaluation 2': [3, 0, "Evaluator 2", roles[0].eval2, "2-2:30-3 min"],
-        'Evaluation 3': [3, 0, "Evaluator 3", roles[0].eval3, "2-2:30-3 min"],
-        'Table Topics': [19, 0, "Table Topics Master", roles[0].ttmaster, "10-12:30-15 min"],
-        'Best Table Topics Speech Voting': [1, 0, "Ballot Counter", roles[0].facilitator, "30-45-60 sec"],
-        'Table Topics Evaluations': [4, 0, "Table Topics Evaluator", roles[0].tteval, "2-3-4 min"],
-        "Timer's Report": [3, 0, "Timer", roles[0].timer, "1-2-3 min"],
-        "Ah Counter's Report": [3, 0, "Ah Counter", roles[0].ah_counter, "1-2-3 min"],
-        "Quizmaster's Report": [2, 0, "Quizmaster", roles[0].quizmaster, "1-1:30-2 min"],
-        "General Evaluator's Report": [5, 0, "General Evaluator", roles[0].geneval, "3-4-5 min"],
+        'Welcome guests and introduce Toastmasters': [2, 0, "Chair", rolelist['Chair'], "1-1:30-2 min"],
+        'Introduce the Timer, Ah Counter, Quizmaster, and General Evaluator': [5, 0, "Toastmaster", rolelist['Toastmaster'], "3-4-5 min"],
+        'Speech 1': [7, 0, "Speaker 1", rolelist['Speaker 1'], "5-6-7 min"],
+        'Speech 2': [7, 0, "Speaker 2", rolelist['Speaker 2'], "5-6-7 min"],
+        'Speech 3': [7, 0, "Speaker 3", rolelist['Speaker 3'], "5-6-7 min"],
+        'Best Speech Voting': [1, 0, "Ballot Counter", rolelist['Facilitator'], "30-45-60 sec"],
+        'Evaluation 1': [3, 0, "Evaluator 1", rolelist['Evaluator 1'], "2-2:30-3 min"],
+        'Evaluation 2': [3, 0, "Evaluator 2", rolelist['Evaluator 2'], "2-2:30-3 min"],
+        'Evaluation 3': [3, 0, "Evaluator 3", rolelist['Evaluator 3'], "2-2:30-3 min"],
+        'Table Topics': [19, 0, "Table Topics Master", rolelist['Table Topics Master'], "10-12:30-15 min"],
+        'Best Table Topics Speech Voting': [1, 0, "Ballot Counter", rolelist['Facilitator'], "30-45-60 sec"],
+        'Table Topics Evaluations': [4, 0, "Table Topics Evaluator", rolelist['Table Topics Evaluator'], "2-3-4 min"],
+        "Timer's Report": [3, 0, "Timer", rolelist['Timer'], "1-2-3 min"],
+        "Ah Counter's Report": [3, 0, "Ah Counter", rolelist['Ah Counter'], "1-2-3 min"],
+        "Quizmaster's Report": [2, 0, "Quizmaster", rolelist['Quizmaster'], "1-1:30-2 min"],
+        "General Evaluator's Report": [5, 0, "General Evaluator", rolelist['General Evaluator'], "3-4-5 min"],
         "Next Meeting Role/Speech Sign Ups": [3, 0, "VP Education", "Miguel", "1-2-3 min"],
         "Club Business and Guest Feedback": [5, 0, "President", "Michael", "3-4-5 min"],
         "Membership and Pathways Information": [5, 0, "Director of Membership", "Alex", "3-4-5 min"],
-        "Group Photo": [1, 0, "Facilitator", roles[0].facilitator, "30-45-60 sec"],
+        "Group Photo": [1, 0, "Facilitator", rolelist['Facilitator'], "30-45-60 sec"],
         "Meeting Adjourned": [0, 0, "", "", ""]
     }
 
@@ -184,7 +198,7 @@ def edit_meeting(request, id):
         # Update meeting information
         update_meeting(meeting[0], form)
 
-        return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(reverse("agenda:index"))
 
     
     # Get meeting details
@@ -219,14 +233,10 @@ def edit_meeting(request, id):
 
     meeting = meeting[0]
     roles = meeting_roles_list(meeting)
-    print(meeting)
 
     # Get the meeting time and date
-    print(meeting.starttime)
     start_time = meeting.starttime.time().strftime("%H:%M")
-    print(start_time)
     start_date = meeting.starttime.date().strftime("%Y-%m-%d")
-    print(start_date)
 
     return render(request, "agenda/edit_meeting.html", {
         'new_meeting': False,
@@ -237,6 +247,25 @@ def edit_meeting(request, id):
         'roles': roles,
         'users': users,
     })
+
+
+@login_required
+def create_meeting(request):
+
+    # Get the list of meetings ordered highest id first
+    meeting = Meeting.objects.filter().order_by('-id')
+
+    # If no meetings exist yet set id to 1
+    if meeting == None:
+        id = 1
+    
+    # Else add 1 to the highest id
+    else:
+        id = meeting[0].id + 1
+
+    print(meeting[0].id)
+
+    return HttpResponseRedirect(reverse("agenda:edit_meeting", args=(id,)))
 
 
 def spreadsheet(request):
@@ -329,9 +358,6 @@ def spreadsheet(request):
 
                         rolelist[role][role_index] = ['No Member Assigned', role_recommendations[meeting_id][role]]
 
-                    
-    print(rolelist)
-
     return render(request, "agenda/spreadsheet.html", {
         'rolelist': rolelist,
         'meeting_list': meeting_list,
@@ -355,8 +381,8 @@ def meeting_roles_list(meeting):
         'Speaker 2': roles[0].speaker2,
         'Speaker 3': roles[0].speaker3,
         'Evaluator 1': roles[0].eval1,
-        'Evaluator 2': roles[0].eval1,
-        'Evaluator 3': roles[0].eval1,
+        'Evaluator 2': roles[0].eval2,
+        'Evaluator 3': roles[0].eval3,
         'Table Topics Master': roles[0].ttmaster,
         'Table Topics Evaluator': roles[0].tteval,
         'Timer': roles[0].timer,
@@ -440,7 +466,6 @@ def update_meeting(meeting, new_roles):
                     elif old_key == 'Sergeant At Arms':
                         roles.saa = User.objects.filter(username=new_roles[new_key]).first()
                     
-                    print(old_key, new_roles[new_key])
                     roles.save()
                     
 
@@ -630,7 +655,7 @@ def role_recommendation_list(meeting):
         users.append(user)
 
     # Sort users by experience level
-    users.sort(key=sortmeetingFunc)
+    users.sort(key=sortByMeetingCountFunc)
 
     # Iterate through each of the meeting roles and get a recommendation list for each
     for role in recommendation_list:
@@ -641,18 +666,49 @@ def role_recommendation_list(meeting):
 
         # Use the past role holders function to get the list of people who have held the role in the past time period
         past_holders = past_role_holders(meeting, role)
+
         for index, recommendation in enumerate(recommendation_list[role]):
             if past_holders == False:
                 continue
+
             for user_info in past_holders:
                 if recommendation == user_info['user']:
-                    recommendation_list[role][index] = user_info
+                    del recommendation_list[role][index]
+                    recommendation_list[role].append(user_info)
+
+        # Figure out and label the users who already have a role this meeting
+        rolelist = meeting_roles_list(meeting)
+
+        # Iterate through the existing list of recommendations for the role
+        for index, recommendation in enumerate(recommendation_list[role]):
+
+            # Iterate throguh the rolelist for the selected meeting
+            for meeting_role in rolelist:
+
+                # Check if the user being recommended already holds a role this meeting
+                if str(recommendation) == str(rolelist[meeting_role]):
+
+                    # Add the role to the user string to display in the dropdown role selector menu
+                    recommendation_list[role][index] = " ".join((recommendation_list[role][index], "[" + str(meeting_role) + "]"))
+                
+                # Check if the user is a past role holder, they have to be treated differently because they use a dictionary instead of a plain string
+                for key in recommendation:
+                    if key == 'user':
+
+                        # Check if the user being recommended already holds a role this meeting
+                        if str(recommendation[key]) == str(rolelist[meeting_role]):
+
+                            # Add the role to the user string to display in the dropdown role selector menu
+                            recommendation_list[role][index]['user'] = " ".join((recommendation_list[role][index]['user'], "[" + str(meeting_role) + "]"))
 
     return recommendation_list
 
 
-def sortmeetingFunc(e):
+def sortByMeetingCountFunc(e):
     return e['meeting_count']
+
+def sortByTimeSinceFunc(e):
+    return e['time_since']
 
 
 def past_role_holders(meeting, role):

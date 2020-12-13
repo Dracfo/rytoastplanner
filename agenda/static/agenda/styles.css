@@ -108,6 +108,16 @@ input{
     -webkit-border-radius:6px;
     -moz-border-radius:6px;
     overflow: hidden!important;
+    table-layout: fixed;
+}
+
+thead{
+    position: -webkit-sticky;
+    position: -moz-sticky;
+    position: -ms-sticky;
+    position: -o-sticky;
+    position: sticky;
+    top: 55px;
 }
 
 th{
@@ -115,15 +125,19 @@ th{
     font-weight: 600;
     background-color: #F5F6FA;
     border-top: none!important;
-    position: sticky!important;
-    top: 55px;
 }
 
 td{
     font-family: 'Poppins', sans-serif;
     font-weight: 300;
+    font-size: 0.9rem;
+    padding: 0.5rem!important;
+    width: 2%;
 }
 
+td p{
+    margin: 0;
+}
 
 
 
@@ -155,6 +169,15 @@ td{
     vertical-align: middle;
 }
 
+.sidebar select{
+    font-size: 0.7rem;
+    padding: 0 0 0 5px;
+    max-height: 25px;
+}
+
+.sidebar select option{
+    padding: 0;
+}
 
 
 /*Style the cards*/
@@ -171,3 +194,24 @@ hr{
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
 }
+
+
+
+/*Styles for small screens*/
+@media only screen and (max-width: 1000px) {
+    .sidebar{
+        display: none;
+    }
+
+    .container.col-title{
+        margin: 0;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .col-9{
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+  }

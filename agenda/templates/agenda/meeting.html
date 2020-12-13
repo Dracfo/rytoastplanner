@@ -45,7 +45,7 @@
                         </tr>
                     </table>
 
-                    <!--Sidebar group with the role sign ups and hodlers-->
+                    <!--Sidebar group with the role sign ups and holders-->
                     <table class="table table-hover">
                         {% for key, value in rolelist.items %}
                             <tr>
@@ -53,15 +53,88 @@
                                     <b>{{ key }}</b>
                                 </td>
                                 <td>
-                                    {% if value == None and user.is_authenticated%}
-                                        <button onclick="role_sign_up('{{ request.user.username }}', '{{ key }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                    {% if value.0 == 'No Member Assigned' and user.executive %}
+                                        {% for member in value %}
+                                            {% if member != 'No Member Assigned' %}  
+                                                <select id="{{ key }}" class="form-control form-select-sm" aria-label=".form-select-sm" onchange='OnChange(this);'>
+                                                    {% for recommendation in member %}
+                                                        {% if recommendation.time_since %}
+                                                            <option id="{{ key }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
+                                                        {% else %}
+                                                            <option id="{{ key }}">{{ recommendation }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% elif value.0 == 'No Member Assigned' and user.is_authenticated %}
+                                        <button onclick="role_sign_up('{{ request.user.username }}', '{{ value.2 }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                    {% elif value.0 == 'No Member Assigned' and user.is_authenticated == False %}
+                                        <p>None</p>
                                     {% else %}
                                         <p>{{ value }}</p>
+                                        {% if user.executive and value.2 != "" and value.2 != "Ballot Counter" %}
+                                            <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ key }}', '{{ meeting.id }}');" id="{{ role }}" style="margin: auto!important">X</button>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
                     </table>
+
+
+                    <!--Sidebar List of the executive officers-->
+                    <table class="table table-hover">
+                        <tr>
+                            <td>
+                                <b>President</b>
+                            </td>
+                            <td>
+                                <a href="https://www.linkedin.com/in/michael-rogala-53a48917b/" target="_blank"><p>Michael Rogala</p></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>VP Education</b>
+                            </td>
+                            <td>
+                                <a href="https://www.linkedin.com/in/miguelting/" target="_blank"><p>Miguel Ting</p></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>VP Membership</b>
+                            </td>
+                            <td>
+                                <a href="https://www.linkedin.com/in/abdulsami26/" target="_blank"><p>Sami Ali</p></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>VP Events</b>
+                            </td>
+                            <td>
+                                <a href="https://www.linkedin.com/in/abdulrahmanalbochi/" target="_blank"><p>Abdulrahman Al Bochi</p></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>VP Marketing</b>
+                            </td>
+                            <td>
+                                <a href="https://www.linkedin.com/in/domenic-s-b5339a174/" target="_blank"><p>Domenic Salituro</p></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>VP Finance</b>
+                            </td>
+                            <td>
+                                <a href="https://www.linkedin.com/in/ann-thanh-dieu-anh-trinh-b765ba150/" target="_blank"><p>Ann Trinh</p></a>
+                            </td>
+                        </tr>
+                    </table>
+
 
                     <!--Sidebar List of the Links-->
                     <table class="table table-hover">
@@ -119,12 +192,28 @@
                                 <!--Start time--><td scope="row"><b>{{ value.1 }}</b></td>
                                 <!--Role--><td>{{ value.2 }}</td>
                                 <!--Presenter--><td>
-                                    {% if value.3 == None and user.is_authenticated %}
+                                    {% if value.3.0 == 'No Member Assigned' and user.executive %}
+                                        {% for member in value.3 %}
+                                            {% if member != 'No Member Assigned' %}  
+                                                <select id="{{ value.2 }}" class="form-control" onchange='OnChange(this);'>
+                                                    {% for recommendation in member %}
+                                                        {% if recommendation.time_since %}
+                                                            <option id="{{ value.2 }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
+                                                        {% else %}
+                                                            <option id="{{ value.2 }}">{{ recommendation }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% elif value.3.0 == 'No Member Assigned' and user.is_authenticated %}
                                         <button onclick="role_sign_up('{{ request.user.username }}', '{{ value.2 }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                    {% elif value.3.0 == 'No Member Assigned' and user.is_authenticated == False %}
+                                        <p>None</p>
                                     {% else %}
                                         {{ value.3 }}
                                         {% if user.executive and value.2 != "" and value.2 != "Ballot Counter" %}
-                                            <button class="btn btn-outline-danger btn-sm" onclick="role_sign_up('None', '{{ value.2 }}', '{{ meeting.id }}');" id="{{ role }}" style="margin: auto!important">Delete</button>
+                                            <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ value.2 }}', '{{ meeting.id }}');" id="{{ role }}" style="margin: auto!important">X</button>
                                         {% endif %}
                                     {% endif %}
                                 </td>
@@ -198,6 +287,40 @@
         document.querySelector('#confirm_attendence_btn').addEventListener('click', () => confirm_attendence());
         document.querySelector('#decline_attendence_btn').addEventListener('click', () => decline_attendence());
     });
+
+
+    function OnChange(dropdown){
+        // Get member selection from dropdown form
+        var myindex_number = dropdown.selectedIndex;
+        console.log(myindex_number);
+        var SelValue = dropdown.options[myindex_number].value
+        SelValue = convert_user_and_roles_string_to_just_user(SelValue)
+        console.log(SelValue);
+        
+        // Get which role is being selected
+        const role = dropdown.id;
+        console.log(role);
+
+        //Sign the user up for the role using the API
+        result = sign_up(SelValue, role, {{ id }});
+
+        return false;
+    }
+
+    // Function to parse string fo user and their roles this meeting to return just the user as a string
+    function convert_user_and_roles_string_to_just_user(input){   
+        record = []
+
+        for (var i=0; i < input.length; i++){
+            if (input[i] != ' '){
+                record[i] = input[i];
+            }
+            else {
+                record = record.join("");
+                return record;
+            }
+        }
+        }
 
 
     function confirm_attendence(){
@@ -286,20 +409,6 @@
         return false;
     }
 
-    function role_sign_up(username, role, meeting_id) {
-
-        console.log(username, role, meeting_id);
-
-        // Call sign up function
-        sign_up(username, role, meeting_id);
-
-        // Refresh the page
-        window.location.reload(true);
-
-        wait(50);
-
-        return false;
-    }
 
     function sign_up(username, role, meeting_id){
         

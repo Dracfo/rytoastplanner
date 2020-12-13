@@ -47,6 +47,11 @@
           </ul>
           <ul class="navbar-nav">
             {% if user.is_authenticated %}
+                    {% if user.executive %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'agenda:create_meeting' %}">New Meeting</a>
+                        </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'agenda:logout' %}">Log Out</a>
                     </li>

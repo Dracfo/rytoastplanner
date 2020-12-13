@@ -38,7 +38,11 @@
                                         <select id="{{ role }}" class="form-control" onchange='OnChange(this);'>
                                             {% for recommendation in member.1 %}
                                                 {% if recommendation != 'No Member Assigned' %}    
-                                                    <option id="{{ role }}">{{ recommendation }}</option>
+                                                    {% if recommendation.time_since %}
+                                                        <option id="{{ role }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
+                                                    {% else %}
+                                                        <option id="{{ role }}">{{ recommendation }}</option>
+                                                    {% endif %}
                                                 {% endif %}
                                             {% endfor %}
                                         </select>
@@ -57,7 +61,7 @@
                             <td id="{{ forloop.counter }}">
                                 {{ member }}
                                 {% if user.executive %}
-                                    <button class="btn btn-outline-danger btn-sm" onclick="DeleteRole(this);" id="{{ role }}" style="margin: auto!important">Delete</button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="DeleteRole(this);" id="{{ role }}" style="margin: auto!important">X</button>
                                 {% endif %}
                             </td>
                         {% endif %}
