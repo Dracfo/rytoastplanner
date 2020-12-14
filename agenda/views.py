@@ -12,7 +12,7 @@ from django.urls import reverse
 from datetime import datetime, timedelta, time, date
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
-from .models import User, Meeting, Rolelist, Attendee
+from .models import User, Meeting, Rolelist, Attendee, BugForm, Buglist
 
 
 # View the first upcoming meeting's individual page
@@ -35,12 +35,15 @@ def index(request):
 # View individual meeting page
 def meeting(request, id):
 
+    # Reset the alert notifications
+    alert_success = None
+    alert_danger = None
+
     # Get the next meeting information
     meeting = Meeting.objects.filter(id=id).order_by('-starttime')
     
     roles = Rolelist.objects.filter(meeting=meeting[0])
     rolelist = meeting_roles_list(meeting[0])
-    print(rolelist)
 
     # Get the role recommednations for the selected meeting
     role_recommendations = role_recommendation_list(meeting[0])
@@ -62,6 +65,10 @@ def meeting(request, id):
     for attendee in attendees:
         if attendee.status == "U":
             unknown_attendees.append(attendee.user)
+
+            # Check if logged in user has marked their attendance
+            if str(attendee.user.username) == str(request.user.username):
+                alert_danger = "You haven't confirmed your attendence for this meeting yet."
         elif attendee.status == "F":
             absentees.append(attendee.user)
         elif attendee.status == "T":
@@ -106,6 +113,13 @@ def meeting(request, id):
         min_to_add = eventlist[key][0]
         t = t + timedelta(minutes = min_to_add)
 
+    # Remind users to login or register in roder to sign up for roles and speeches
+    if request.user.is_authenticated == False:
+        alert_danger = "Login to sign up for a role or speech this meeting."
+
+    # Get the list of all bugs reported
+    bugs = Buglist.objects.filter()
+
     # Render the individual meeting page
     return render(request, "agenda/meeting.html", {
         'id': id,
@@ -116,8 +130,10 @@ def meeting(request, id):
         'confirmed_attendees': confirmed_attendees,
         'unknown_attendees': unknown_attendees,
         'absentees': absentees,
-        'username': str(request.user.username)
-
+        'username': str(request.user.username),
+        'alert_success': alert_success,
+        'alert_danger': alert_danger,
+        'bugs': bugs,
     })
 
 
@@ -174,6 +190,7 @@ def meeting_list(request):
     })
 
 
+@login_required
 def profile(request, id):
     
     # Get User information
@@ -266,6 +283,32 @@ def create_meeting(request):
     print(meeting[0].id)
 
     return HttpResponseRedirect(reverse("agenda:edit_meeting", args=(id,)))
+
+
+def delete_meeting(request, id):
+
+    # Check if user is an executive
+    if request.user.executive == False:
+        return HttpResponseRedirect(reverse("agenda:index"))
+
+    # Get meeting information
+    meeting = Meeting.objects.get(id=id)
+
+    # Check if user is submitting via a POST request, delete the meeting
+    if request.method == "POST":
+        
+        # Delete the meeting
+        meeting.delete()
+
+        #Redirect to index page
+        return HttpResponseRedirect(reverse("agenda:index"))
+    
+    # If user is not submitting via a post request then redirect to confirmation page
+    return render(request, "agenda/delete_meeting_confirmation.html", {
+        'meeting': meeting,
+    })
+
+
 
 
 def spreadsheet(request):
@@ -395,6 +438,7 @@ def meeting_roles_list(meeting):
     return rolelist
 
 
+@login_required
 def update_meeting(meeting, new_roles):
 
     # Update the meeting time
@@ -472,6 +516,7 @@ def update_meeting(meeting, new_roles):
     return
 
 
+@login_required
 def attendence(request):
     # Updating attendence must be via POST request
     if request.method != "POST":
@@ -494,7 +539,8 @@ def attendence(request):
     action = [{'action': status}]
     return JsonResponse(action, safe=False)
 
-    
+
+@login_required
 def sign_up(request):
     # Updating role holder must be via POST request
     if request.method != "POST":
@@ -741,7 +787,7 @@ def past_role_holders(meeting, role):
         if time_since_role < 14:
             indicator = 'red'
         elif time_since_role < 31:
-            indicator = 'yellow'
+            indicator = '#CCCC00'
         else:
             indicator = 'green'
         
@@ -792,6 +838,46 @@ def convert_role_to_shorthand(role):
         return "facilitator"
 
     return "Invalid Role"
+
+
+def report_bug(request):
+
+    # If request is via post, process the data and submit the bug report
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = BugForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            bug_type = form.cleaned_data['bug_type']
+            bug_location = form.cleaned_data['bug_location']
+            bug_description = form.cleaned_data['bug_description']
+            contact_info = form.cleaned_data['contact_info']
+            user = request.user
+
+            # Create and save a new entry in the bug list
+            new_bug = Buglist(user=user, bug_type=bug_type, bug_location=bug_location, bug_description=bug_description, contact_info=contact_info)
+            new_bug.save()
+
+            # redirect to a new URL:
+            return HttpResponseRedirect(reverse('agenda:index'))
+
+    # If request is via GET load the bug report page
+    return render(request, "agenda/bug_report.html", {
+        'bug_report_form': BugForm(),
+    })
+
+
+# View the list of bugs users have reported
+@login_required
+def bug_list(request):
+
+    # load the buglist entries
+    list_of_bugs = Buglist.objects.filter().order_by('bug_type')
+
+    return render(request, "agenda/bug_list.html", {
+        'bug_list': list_of_bugs,
+    })
 
 
 def login_view(request):

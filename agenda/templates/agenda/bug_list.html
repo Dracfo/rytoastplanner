@@ -1,0 +1,59 @@
+{% extends 'agenda/layout.html' %}
+{% load static %}
+
+{% block title %}
+    Bug List
+{% endblock %}
+
+{% block body %}
+<br>
+
+<div class="container col-title">
+    <h2>List of Bugs Users have Reported</h2>
+</div>
+
+<br>
+
+<table class="container table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>
+                Type
+            </th>
+            <th>
+                Location
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                User
+            </th>
+            <th>
+                Date
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bug in bug_list %}
+            <tr>
+                <td>
+                    {{ bug.bug_type }}
+                </td>
+                <td>
+                    {{ bug.bug_location }}
+                </td>
+                <td>
+                    {{ bug.bug_description }}
+                </td>
+                <td>
+                    {{ bug.user }}
+                </td>
+                <td>
+                    {{ bug.date_reported }}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'agenda/layout.html' %}
+{% load static %}
+
+{% block title %}
+    Report a Bug
+{% endblock %}
+
+{% block body %}
+<br>
+
+    <div class="container container-sm col-title col-6">
+        <h2>Report a Bug</h2>
+    </div>
+
+    <br>
+
+    <div class="container container-sm col-title col-6">
+        <p>Thank you for reporting a bug!</p>
+        <p>This webapp is still in alpha and there are a lot of kinks left to work out. Every bug you report gets us one step closer to launching a full version of the webapp.</p>
+
+        <form action="{% url 'agenda:report_bug' %}" method="post">
+            {% csrf_token %}
+
+            {{ bug_report_form.non_field_errors }}
+
+            <div class="fieldWrapper">
+                {{ bug_report_form.bug_type.errors }}
+                {{ bug_report_form.bug_type.label_tag }}
+                {{ bug_report_form.bug_type }}
+            </div>
+            <div class="fieldWrapper">
+                {{ bug_report_form.bug_location.errors }}
+                {{ bug_report_form.bug_location.label_tag }}
+                {{ bug_report_form.bug_location }}
+            </div>
+            <div class="fieldWrapper">
+                {{ bug_report_form.bug_description.errors }}
+                {{ bug_report_form.bug_description.label_tag }}
+                {{ bug_report_form.bug_description }}
+            </div>
+            <div class="fieldWrapper">
+                {{ bug_report_form.contact_info.errors }}
+                {{ bug_report_form.contact_info.label_tag }}
+                {{ bug_report_form.contact_info }}
+            </div>
+
+            <br>
+
+            <button type="submit" class="btn btn-primary">Submit Bug Report</button>
+        </form>
+    </div>
+
+    <br>
+
+    <!--Section to explain the differebnt types fo bugs-->
+    <div class="container container-sm col-title col-6">
+
+        <h4>Bug Type Explanations</h4>
+        <p>Don't worry too much about the type you select. The developper will try to fix all bugs reported, selecting a type just helps them decide the order.</p>
+        
+        <br>
+
+            <figure>
+            <blockquote cite="https://devqa.io/what-to-include-in-bug-report/">
+                <h5>Critical Bugs</h5>
+                <p>This means the defect is a show stopper with high potential damages and has no workaround to avoid the defect. An example could be the application does not launch at all and causes the operating system to shut down. This requires immediate attention and action and fix.</p>
+
+                <h5>Serious Bugs</h5>
+                <p>This means that some major functionalities of the applications are either missing or do not work and there is no workaround. Example, an image viewing application cannot read some common image formats.</p>
+
+                <h5>Normal Bugs</h5>
+                <p>This means that some major functionality do not work, but, a workaround exists to be used as a temporary solution.</p>
+
+                <h5>Cosmetic/Enhancements</h5>
+                <p>This means that the failure causes inconvenience and annoyance. Example can be that there is a pop-up message every 15 minutes, or you always have to click twice on a button to perform the action.</p>
+
+                <h5>Suggestions</h5>
+                <p>This is not normally a defect and a suggestion to improve a functionality. This can be GUI or viewing preferences.</p>
+            </blockquote>
+            <figcaption>—Amir Ghahrai, DevQA.io, <cite>What to Include in a Bug Report?</cite></figcaption>
+        </figure>
+
+    </div>
+
+{% endblock %}

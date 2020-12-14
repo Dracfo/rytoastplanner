@@ -36,6 +36,7 @@
                                 <td id="{{ forloop.counter }}">
                                     <form>
                                         <select id="{{ role }}" class="form-control" onchange='OnChange(this);'>
+                                            <option>None</option>
                                             {% for recommendation in member.1 %}
                                                 {% if recommendation != 'No Member Assigned' %}    
                                                     {% if recommendation.time_since %}
@@ -92,6 +93,7 @@
         var myindex_number = dropdown.selectedIndex;
         console.log(myindex_number);
         var SelValue = dropdown.options[myindex_number].value
+        SelValue = convert_user_and_roles_string_to_just_user(SelValue)
         console.log(SelValue);
         
         // Get which role is being selected

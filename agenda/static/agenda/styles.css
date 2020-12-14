@@ -11,6 +11,13 @@ body{
     border-radius: 6px!important;
 }
 
+#bug-button{
+    position: fixed!important;
+    right: 20px;
+    bottom: 20px;
+    color: white;
+}
+
 
 /*Style the navbar*/
 nav{
@@ -139,6 +146,10 @@ td p{
     margin: 0;
 }
 
+.btn.btn-outline-danger.btn-sm{
+    padding: 0 4px;
+}
+
 
 
 /*Style the sidebar*/
@@ -187,6 +198,25 @@ td p{
     border-radius: 6px!important;
 }
 
+
+/*Blockquote styles*/
+blockquote {
+    margin: 0;
+}
+
+blockquote p {
+    padding: 15px;
+    background: #eee;
+    border-radius: 5px;
+}
+
+blockquote p::before {
+    content: '\201C';
+}
+
+blockquote p::after {
+    content: '\201D';
+}
 
 
 /*Misc Styles*/

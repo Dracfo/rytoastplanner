@@ -10,8 +10,17 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container">
-        <form action="/edit_meeting/{{ id }}" method="POST" class="col-6" style="margin: auto;">
+
+<br>
+
+    <div class="container container-sm col-title col-6">
+        <h2>Edit Meeting on: {{ meeting.starttime|date:"M d, Y" }}</h2>
+    </div>
+
+    <br>
+
+    <div class="container container-sm col-title col-6">
+        <form action="/edit_meeting/{{ id }}" method="POST" style="margin: auto;">
             {% csrf_token %}
 
             <!--Edit Meeting start time-->
@@ -46,6 +55,8 @@
             {% endfor %}
             
             <button type="submit" class="btn btn-primary">Save Changes</button>
+
+            <a class="btn btn-danger" href="{% url 'agenda:delete_meeting' id %}">Delete Meeting</a>
 
         </form>
     </div>

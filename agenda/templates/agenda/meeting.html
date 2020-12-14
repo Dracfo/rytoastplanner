@@ -32,7 +32,7 @@
                                 <b>Word of the Day:</b>
                             </td>
                             <td>
-
+                                <a href="https://www.merriam-webster.com/dictionary/{{ meeting.wod }}" target="_blank"><p>{{ meeting.wod }}</p></a>
                             </td>
                         </tr>
                         <tr>
@@ -40,7 +40,15 @@
                                 <b>Meeting Theme:</b>
                             </td>
                             <td>
-                                
+                                <p>{{ meeting.theme }}</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Eventbrite:</b>
+                            </td>
+                            <td>
+                                <a href="https://www.eventbrite.ca/e/the-ryerson-toastmasters-weekly-membership-meeting-tickets-110513236064" target="_blank"><p>Visit</p></a>
                             </td>
                         </tr>
                     </table>
@@ -57,6 +65,7 @@
                                         {% for member in value %}
                                             {% if member != 'No Member Assigned' %}  
                                                 <select id="{{ key }}" class="form-control form-select-sm" aria-label=".form-select-sm" onchange='OnChange(this);'>
+                                                    <option>None</option>
                                                     {% for recommendation in member %}
                                                         {% if recommendation.time_since %}
                                                             <option id="{{ key }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
@@ -196,6 +205,7 @@
                                         {% for member in value.3 %}
                                             {% if member != 'No Member Assigned' %}  
                                                 <select id="{{ value.2 }}" class="form-control" onchange='OnChange(this);'>
+                                                    <option>None</option>
                                                     {% for recommendation in member %}
                                                         {% if recommendation.time_since %}
                                                             <option id="{{ value.2 }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>

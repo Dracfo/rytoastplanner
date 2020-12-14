@@ -22,6 +22,24 @@
 
     <script>
       {% block script %}{% endblock %}
+
+      // Function to parse string fo user and their roles this meeting to return just the user as a string
+      function convert_user_and_roles_string_to_just_user(input){   
+        record = []
+
+        for (var i=0; i < input.length; i++){
+            if (input[i] != ' '){
+                record[i] = input[i];
+            }
+            else {
+                record = record.join("");
+                return record;
+            }
+        }
+          // If there is only one word in the string, exit
+          record = record.join("");
+          return record;
+        }
     </script>
 </head>
 <body>
@@ -51,6 +69,13 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'agenda:create_meeting' %}">New Meeting</a>
                         </li>
+
+                        <!--Show Aidan how many bugs have been reported-->
+                        {% if user.username == 'Aidan' and bugs %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'agenda:bug_list' %}">{{ bugs.count }} Bugs</a>
+                            </li>
+                        {% endif %}
                     {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'agenda:logout' %}">Log Out</a>
@@ -67,9 +92,24 @@
         </div>
       </nav>
     
+      <!--Alert Message for user if one exists-->
+      {% if alert_danger %}
+        <div class="alert alert-danger" role="alert">
+          {{ alert_danger }}
+        </div>
+      {%elif alert_success %}
+        <div class="alert alert-success" role="alert">
+          {{ alert_success }}
+        </div>
+      {% endif %}
+
     <!--Import body block to specific page-->
     {% block body %}
     {% endblock %}
+
+
+    <!--Floating Report a Bug Button-->
+    <a href="{% url 'agenda:report_bug' %}" class="btn btn-danger" id="bug-button">Report a Bug</button>
 
 </body>
 </html>
