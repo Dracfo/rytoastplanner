@@ -55,6 +55,19 @@ nav .navbar-brand{
     padding: 0;
 }
 
+.navbar-toggler{
+    color: rgba(255,255,255,.5)!important;
+    border-color: rgba(255,255,255,.1)!important;
+}
+
+nav .dropdown-menu{
+    background-color: #d1d2d4;
+}
+
+nav .dropdown-menu #dropdown-item{
+    color: black!important;
+}
+
 
 
 /*Style the page text*/
@@ -104,7 +117,9 @@ input{
     font-size: 0.8rem;
 }
 
-
+a{
+    color: #004165;
+}
 
 
 /*Style the tables*/

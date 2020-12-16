@@ -11,6 +11,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from datetime import datetime, timedelta, time, date
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
+import random
+import string
 
 from .models import User, Meeting, Rolelist, Attendee, BugForm, Buglist
 
@@ -939,3 +941,49 @@ def register(request):
         return HttpResponseRedirect(reverse("agenda:index"))
     else:
         return render(request, "agenda/register.html")
+
+
+# Function for executives to create a new user
+@login_required
+def create_user(request):
+
+    # Check for a POST request
+    if request.method == "POST":
+        username = request.POST["username"]
+        email = request.POST["email"]
+
+        # Generate a random password
+        # Random password generator from https://medium.com/analytics-vidhya/create-a-random-password-generator-using-python-2fea485e9da9
+        length = 20
+
+        lower = string.ascii_lowercase
+        upper = string.ascii_uppercase
+        num = string.digits
+        symbols = string.punctuation
+
+        all_characters = lower + upper + num + symbols
+
+        temp = random.sample(all_characters,length)
+        password = "".join(temp)
+
+        all_characters = string.ascii_letters + string.digits + string.punctuation
+        password = "".join(random.sample(all_characters,length))
+
+        # Attempt to create new user
+        try:
+            user = User.objects.create_user(username, email, password)
+            user.save()
+        except IntegrityError:
+            return render(request, "agenda/create_user.html", {
+                "message": "Username already taken."
+            })
+        
+        # Add user attendence to all meetings
+        meetings = Meeting.objects.filter()
+        for meeting in meetings:
+            new_attendence = Attendee(user=user, meeting=meeting, status="U")
+            new_attendence.save()
+
+        return HttpResponseRedirect(reverse("agenda:index"))
+    
+    return render(request, "agenda/create_user.html")

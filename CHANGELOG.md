@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ---
+### Added:
+-
+
+### Changed:
+-
+
+### Removed:
+-
+
+### Fixed:
+-
+
+### Security
+-
+
+
+
+## [0.2.0-alpha] - 2020-Dec-16
+---
+### Added:
+- Word of the Day and Theme form elements to the edit meeting page
+- Create user function for executives to create new user accounts with random passwords
+- Added bootstrap javascript import code to layout header
+- Added ability for the Toastmaster and Facilitator to assign memebrs to roles for the meeting they are serving in the role
+- Added ability to reset password (Emails with the link are currently logged in a local folder)
+- README.md file with project description
+
+### Changed:
+- Changed 'a' element colour to Toastmasters blue (#004165)
+- All navbar elements restricted to executives are now in a dropdown menu in the nabar labels "Executive"
+- Navbar toggler icon (hamburger menu button on small screens) is now white
+- Login and logout functions to use the default django.contrib.auth.urls instead of custom functions
+
+### Removed:
+- Requirement that users have a last speech date and time filled in on their accounts
+
 
 
 ## [0.1.0-alpha] - 2020-Dec-14
@@ -25,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed:
 - Made the delete buttons smaller
 - Edit Meeting container background colour to white
+
 
 
 ## [0.0.0-alpha] - 20YY-MMM-DD (Copiable template for new versions)

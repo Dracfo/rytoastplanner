@@ -23,7 +23,11 @@
         <form action="/edit_meeting/{{ id }}" method="POST" style="margin: auto;">
             {% csrf_token %}
 
-            <!--Edit Meeting start time-->
+            <!--Edit Meeting details-->
+
+            <h4>Meeting Details</h4>
+            <hr>
+
             <div class="form-group">
                 <label for="date">Meeting Date:</label>
                 <input type="date" id="date" name="date" class="form-control" value="{{ start_date }}">
@@ -32,7 +36,19 @@
                 <label for="start_time">Meeting Start Time:</label>
                 <input type="time" id="start_time" name="start_time" class="form-control" value="{{ start_time }}">
             </div>
+            <div class="form-group">
+                <label for="theme">Meeting Theme:</label>
+                <input type="text" id="theme" name="theme" class="form-control" value="{{ meeting.theme }}">
+            </div>
+            <div class="form-group">
+                <label for="wod">Word of the Day:</label>
+                <input type="text" id="wod" name="wod" class="form-control" value="{{ meeting.wod }}">
+            </div>
 
+            <br>
+
+            <h4>Role Assignments</h4>
+            <hr>
 
             <!--List all the roles user can edit-->
             {% for key, value in roles.items %}

@@ -14,7 +14,7 @@ class User(AbstractUser):
     meeting_count = models.IntegerField(default=0)
     speech_count = models.IntegerField(default=0)
     executive = models.BooleanField(default=False)
-    last_speech = models.DateTimeField(null=True)
+    last_speech = models.DateTimeField(null=True, blank=True)
 
 # Model for each meeting
 class Meeting(models.Model):
@@ -97,4 +97,3 @@ class Buglist(models.Model):
 
     def __str__(self):
         return f"Bug {self.id}: {self.bug_type} in {self.bug_location} reported by {self.user} on {self.date_reported}"
-

@@ -6,10 +6,6 @@ app_name = "agenda"
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("login/", views.login_view, name="login"),
-    path("accounts/login/", views.login_view, name="accounts/login"),
-    path("logout/", views.logout_view, name="logout"),
-    path("register/", views.register, name="register"),
     path("spreadsheet", views.spreadsheet, name="spreadsheet"),
     path("profile/<id>", views.profile, name="profile"),
     path("meeting/<id>", views.meeting, name="meeting"),
@@ -19,6 +15,11 @@ urlpatterns = [
     path("meeting_list", views.meeting_list, name="meeting_list"),
     path("report_bug", views.report_bug, name="report_bug"),
     path("bug_list", views.bug_list, name="bug_list"),
+
+
+    # Authentication routes
+    path("register/", views.register, name="register"),
+    path("create_user/", views.create_user, name="create_user"),
 
     # API Routes
     path("attendence", views.attendence, name="attendence"),

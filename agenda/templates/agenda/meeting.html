@@ -61,29 +61,35 @@
                                     <b>{{ key }}</b>
                                 </td>
                                 <td>
-                                    {% if value.0 == 'No Member Assigned' and user.executive %}
-                                        {% for member in value %}
-                                            {% if member != 'No Member Assigned' %}  
-                                                <select id="{{ key }}" class="form-control form-select-sm" aria-label=".form-select-sm" onchange='OnChange(this);'>
-                                                    <option>None</option>
-                                                    {% for recommendation in member %}
-                                                        {% if recommendation.time_since %}
-                                                            <option id="{{ key }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
-                                                        {% else %}
-                                                            <option id="{{ key }}">{{ recommendation }}</option>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </select>
+                                    {% if value.0 == 'No Member Assigned' %}
+                                        {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                            {% if value.0 == 'No Member Assigned' %}
+                                                {% for member in value %}
+                                                    {% if member != 'No Member Assigned' %}  
+                                                        <select id="{{ key }}" class="form-control form-select-sm" aria-label=".form-select-sm" onchange='OnChange(this);'>
+                                                            <option>None</option>
+                                                            {% for recommendation in member %}
+                                                                {% if recommendation.time_since %}
+                                                                    <option id="{{ key }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
+                                                                {% else %}
+                                                                    <option id="{{ key }}">{{ recommendation }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    {% endif %}
+                                                {% endfor %}
                                             {% endif %}
-                                        {% endfor %}
-                                    {% elif value.0 == 'No Member Assigned' and user.is_authenticated %}
-                                        <button onclick="role_sign_up('{{ request.user.username }}', '{{ value.2 }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
-                                    {% elif value.0 == 'No Member Assigned' and user.is_authenticated == False %}
-                                        <p>None</p>
+                                        {% elif user.is_authenticated %}
+                                            <button onclick="role_sign_up('{{ request.user.username }}', '{{ key }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                        {% else %}
+                                            <p>None</p>
+                                        {% endif %}
                                     {% else %}
                                         <p>{{ value }}</p>
-                                        {% if user.executive and value.2 != "" and value.2 != "Ballot Counter" %}
-                                            <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ key }}', '{{ meeting.id }}');" id="{{ role }}" style="margin: auto!important">X</button>
+                                        {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                            {% if key != "" and key != "Ballot Counter" %}
+                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ key }}', '{{ meeting.id }}');" id="{{ role }}" style="margin: auto!important">X</button>
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 </td>
@@ -201,29 +207,33 @@
                                 <!--Start time--><td scope="row"><b>{{ value.1 }}</b></td>
                                 <!--Role--><td>{{ value.2 }}</td>
                                 <!--Presenter--><td>
-                                    {% if value.3.0 == 'No Member Assigned' and user.executive %}
-                                        {% for member in value.3 %}
-                                            {% if member != 'No Member Assigned' %}  
-                                                <select id="{{ value.2 }}" class="form-control" onchange='OnChange(this);'>
-                                                    <option>None</option>
-                                                    {% for recommendation in member %}
-                                                        {% if recommendation.time_since %}
-                                                            <option id="{{ value.2 }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
-                                                        {% else %}
-                                                            <option id="{{ value.2 }}">{{ recommendation }}</option>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </select>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% elif value.3.0 == 'No Member Assigned' and user.is_authenticated %}
-                                        <button onclick="role_sign_up('{{ request.user.username }}', '{{ value.2 }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
-                                    {% elif value.3.0 == 'No Member Assigned' and user.is_authenticated == False %}
-                                        <p>None</p>
+                                    {% if value.3.0 == 'No Member Assigned' %}
+                                        {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                            {% for member in value.3 %}
+                                                {% if member != 'No Member Assigned' %}  
+                                                    <select id="{{ value.2 }}" class="form-control" onchange='OnChange(this);'>
+                                                        <option>None</option>
+                                                        {% for recommendation in member %}
+                                                            {% if recommendation.time_since %}
+                                                                <option id="{{ value.2 }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
+                                                            {% else %}
+                                                                <option id="{{ value.2 }}">{{ recommendation }}</option>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% elif user.is_authenticated %}
+                                            <button onclick="role_sign_up('{{ request.user.username }}', '{{ value.2 }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                        {% else %}
+                                            <p>None</p>
+                                        {% endif %}
                                     {% else %}
                                         {{ value.3 }}
-                                        {% if user.executive and value.2 != "" and value.2 != "Ballot Counter" %}
-                                            <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ value.2 }}', '{{ meeting.id }}');" id="{{ role }}" style="margin: auto!important">X</button>
+                                        {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                            {% if key != "" and key != "Ballot Counter" %}
+                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ value.2 }}', '{{ meeting.id }}');" id="{{ role }}" style="margin: auto!important">X</button>
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 </td>
