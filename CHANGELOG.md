@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-## [0.2.0-alpha] - 2020-Dec-16
+## [0.2.0-alpha] - 2020-Dec-17
 ---
 ### Added:
 - Word of the Day and Theme form elements to the edit meeting page
@@ -42,6 +42,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed:
 - Requirement that users have a last speech date and time filled in on their accounts
+
+### Fixed:
+- Bug where meetings could not be created if no meetings exist
 
 
 

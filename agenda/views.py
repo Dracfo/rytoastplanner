@@ -28,7 +28,7 @@ def index(request):
     next_meeting = Meeting.objects.filter(starttime__range=[startdate, enddate]).first()
 
     if next_meeting == None:
-        return HttpResponseRedirect(reverse("agenda:login"))
+        return HttpResponseRedirect(reverse("login"))
 
     # Redirect to views.meeting to load the individual meeting page for the next meeting
     return HttpResponseRedirect(reverse("agenda:meeting", args=(next_meeting.id,)))
@@ -272,17 +272,15 @@ def edit_meeting(request, id):
 def create_meeting(request):
 
     # Get the list of meetings ordered highest id first
-    meeting = Meeting.objects.filter().order_by('-id')
+    meeting = Meeting.objects.filter().order_by('-id').first()
 
     # If no meetings exist yet set id to 1
     if meeting == None:
         id = 1
     
     # Else add 1 to the highest id
-    else:
+    elif meeting != None:
         id = meeting[0].id + 1
-
-    print(meeting[0].id)
 
     return HttpResponseRedirect(reverse("agenda:edit_meeting", args=(id,)))
 
