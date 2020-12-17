@@ -280,7 +280,7 @@ def create_meeting(request):
     
     # Else add 1 to the highest id
     elif meeting != None:
-        id = meeting[0].id + 1
+        id = meeting.id + 1
 
     return HttpResponseRedirect(reverse("agenda:edit_meeting", args=(id,)))
 

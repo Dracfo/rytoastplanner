@@ -24,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [0.2.1-alpha] - 2020-Dec-17
+---
+### Fixed:
+- Bug where meetings could not be created because the variable was being improperly referenced
+
+
+
 ## [0.2.0-alpha] - 2020-Dec-17
 ---
 ### Added:
