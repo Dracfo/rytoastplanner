@@ -210,12 +210,14 @@ def edit_meeting(request, id):
     if request.method == "POST":
         # Get data from form submission
         form = request.POST
+        print(form)
 
         # Get the existing meeting information
-        meeting = Meeting.objects.filter(id=id)
+        meeting = Meeting.objects.get(id=id)
 
         # Update meeting information
-        update_meeting(meeting[0], form)
+        print(meeting)
+        update_meeting(meeting, form)
 
         return HttpResponseRedirect(reverse("agenda:index"))
 
@@ -438,7 +440,6 @@ def meeting_roles_list(meeting):
     return rolelist
 
 
-@login_required
 def update_meeting(meeting, new_roles):
 
     # Update the meeting time
@@ -447,8 +448,7 @@ def update_meeting(meeting, new_roles):
     meeting.save()
 
     # Get the meeting information
-    roles = Rolelist.objects.filter(meeting=meeting)
-    roles = roles[0]
+    roles = Rolelist.objects.get(meeting=meeting)
 
     # Create a list of all the old roles and who has filled them
     rolelist = {
@@ -510,8 +510,7 @@ def update_meeting(meeting, new_roles):
                     elif old_key == 'Sergeant At Arms':
                         roles.saa = User.objects.filter(username=new_roles[new_key]).first()
                     
-                    roles.save()
-                    
+                    roles.save()     
 
     return
 
