@@ -756,6 +756,27 @@ def sortByTimeSinceFunc(e):
     return e['time_since']
 
 
+def fetch_call_recommend_one_role(request):
+    # Updating role holder must be via POST request
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    # Get JSON data from request
+    data = json.loads(request.body.decode("utf-8"))
+    meeting_id = data.get("meeting_id", "")
+    role = data.get("role", "")
+
+    # Get the list for this meeting and role
+    meeting = Meeting.objects.get(id=meeting_id)
+    recommendations = role_recommendation_list(meeting)
+    recommend_role = recommendations[role]
+
+    # Return json response with new recommendation list
+    recommendation_list = [{'recommendation_list': recommend_role}]
+    return JsonResponse(recommendation_list, safe=False)
+
+
+
 def past_role_holders(meeting, role):
 
     # Get the past 2 months of meetings
@@ -840,7 +861,6 @@ def convert_role_to_shorthand(role):
 
 
 def report_bug(request):
-
     # If request is via post, process the data and submit the bug report
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:

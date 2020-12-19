@@ -15,6 +15,7 @@
             <h1>Ryerson Toastmasters</h1>
             <h3>Meeting: {{ meeting.starttime }} EST</h3>
             <p style="position: absolute; top: 5px; right: 10px;"><b>Club: </b>01474196</p>
+            <a href="{% url 'agenda:edit_meeting' id %}" class="btn btn-primary" style="position: absolute; bottom: 5px; right: 10px;">Edit Meeting</a>
         </div>
 
         <br>
@@ -88,7 +89,7 @@
                                         <p>{{ value }}</p>
                                         {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
                                             {% if key != "" and key != "Ballot Counter" %}
-                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ key }}', '{{ meeting.id }}');" id="{{ role }}" style="margin: auto!important">X</button>
+                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ key }}', '{{ meeting.id }}');" id="{{ role }}_delete" style="margin: auto!important">X</button>
                                             {% endif %}
                                         {% endif %}
                                     {% endif %}
@@ -232,7 +233,7 @@
                                         {{ value.3 }}
                                         {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
                                             {% if key != "" and key != "Ballot Counter" %}
-                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ value.2 }}', '{{ meeting.id }}');" id="{{ role }}" style="margin: auto!important">X</button>
+                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ value.2 }}', '{{ meeting.id }}', this);" id="{{ role }}_delete" style="margin: auto!important">X</button>
                                             {% endif %}
                                         {% endif %}
                                     {% endif %}
@@ -243,13 +244,18 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <a href="{% url 'agenda:edit_meeting' id %}" class="btn btn-primary">Edit Meeting</a>
 
 
 
                 <!--Attendee and Absentee information-->
-                <hr>
-                <h2>Member Attendence Information</h2>
+                <br><hr><br>
+
+                <div class="container col-title">
+                    <h2>Member Attendence Information</h2>
+                </div>
+
+                <br>
+                
                 <div class="row">
                     <div class="col-sm-4">
                       <div class="card">
@@ -323,6 +329,9 @@
 
         //Sign the user up for the role using the API
         result = sign_up(SelValue, role, {{ id }});
+
+        // Update inner HTML with new role holder
+        dropdown.parentElement.innerHTML = `${SelValue} <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '${role}', '{{ meeting.id }}', this);" id="${role}" style="margin: auto!important">X</button>`;
 
         return false;
     }
@@ -430,7 +439,7 @@
     }
 
 
-    function sign_up(username, role, meeting_id){
+    function sign_up(username, role, meeting_id, button){
         
         console.log(username, role, meeting_id);
 
@@ -457,6 +466,61 @@
         .catch(function (err) {
             console.log(err);
         });
+
+        // If the function call was to remove the user, update innerHTML with a role recommendation list
+        if (username == 'None'){
+            console.log("We're in the username == 'None' condition")
+            console.log(role, meeting_id)
+
+            fetch('/fetch_call_recommend_one_role', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers:{
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    'role': role,
+                    'meeting_id': meeting_id
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                // Print result
+                console.log(result);
+                console.log(result[0]['recommendation_list']);
+
+                // Get the recommendation list from the fetch call result
+                recommendation_list = result[0]['recommendation_list']
+
+                // Make the recommendation list into a printable string
+                recommendation_str = "";
+                for (index in recommendation_list){
+                    if (typeof yourVariable === 'Object'){
+                        recommendation_str = recommendation_str + `<option>${recommendation_list[index]['user']} - ${recommendation_list[index]['time_since']}  days ago</option>`;
+                    }
+                    else{
+                        recommendation_str = recommendation_str + `<option>${recommendation_list[index]}</option>`;
+                    }
+                }
+
+                // Update the innerHTML
+                console.log(`Role being deleted: ${role}`)
+                console.log(button.parentElement)
+                button.parentElement.innerHTML = `<select id="{{ value.2 }}" class="form-control" onchange='OnChange(this);'>
+                    <option>None</option>
+                    ${recommendation_str}
+                </select>`
+
+
+                return result;
+            })
+            .catch(function (err) {
+                console.log(err);
+            });
+        }
+        
 
         return false;
     }

@@ -24,4 +24,5 @@ urlpatterns = [
     # API Routes
     path("attendence", views.attendence, name="attendence"),
     path("sign_up", views.sign_up, name="sign_up"),
+    path("fetch_call_recommend_one_role", views.fetch_call_recommend_one_role, name="fetch_call_recommend_one_role"),
 ]

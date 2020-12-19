@@ -23,10 +23,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 
+
+## [0.2.3-alpha] - 2020-Dec-19
+---
+### Added:
+- Added note about admins manually emailing password reset instructions to users to password reset forms
+
+### Changed:
+- Added white container boxes to login and password reset pages content
+- Added white container to meeting page Attendence Information header
+- Changed password reset form buttons to blue bootstrap style instead of default HTML gray
+- Moved edit meeting button to the top of individual meeting page, in the page header section
+
+
+
 ## [0.2.2-alpha] - 2020-Dec-17
 ---
 ### Fixed:
-- Bug where meeting could not be edited due to the @login_required decorator stopping the update_meeting function even when logged in.
+- Bug where meeting could not be edited due to the @login_required decorator stopping the update_meeting function even when logged in.  
+
 
 
 
@@ -76,7 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed:
 - Made the delete buttons smaller
-- Edit Meeting container background colour to white
+- Edit Meeting container background colour to white  
 
 
 
