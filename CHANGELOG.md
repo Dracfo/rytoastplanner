@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ---
 
-### Changed:
-- Changed email file folder from sent_emails to tmp\django-email-dev
 
+
+## [0.2.4-alpha] - 2020-Dec-20
+---
+### Changed:
+- Changed email file folder from sent_emails to django-email-dev
 
 
 
