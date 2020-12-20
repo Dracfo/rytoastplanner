@@ -13,6 +13,8 @@ from datetime import datetime, timedelta, time, date
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 import random
 import string
+from django.conf import settings 
+from django.core.mail import send_mail 
 
 from .models import User, Meeting, Rolelist, Attendee, BugForm, Buglist
 

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ---
+### Added:
+-
+
+### Changed:
+-
+
+### Removed:
+-
+
+### Fixed:
+-
+
+### Security
+-
+
+
+
+## [0.3.0-alpha] - 2020-Dec-20
+---
+### Changed:
+- Email support to use the gmail account RyToastPlanner@gmail.com instead of just creating a file
 
 
 
