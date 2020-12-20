@@ -112,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Email settings
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-EMAIL_FILE_PATH = str(BASE_DIR.joinpath('sent_emails'))
+EMAIL_FILE_PATH = 'tmp/django-email-dev'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
