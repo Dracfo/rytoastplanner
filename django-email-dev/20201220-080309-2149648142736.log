@@ -1,0 +1,26 @@
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Password reset on 127.0.0.1:8000
+From: webmaster@localhost
+To: a@aidandennehy.ca
+Date: Sun, 20 Dec 2020 13:03:09 -0000
+Message-ID: 
+ <160846938938.11496.12865407173437856095@DESKTOP-6N1O28R.phub.net.cable.rogers.com>
+
+
+You're receiving this email because you requested a password reset for your user account at 127.0.0.1:8000.
+
+Please go to the following page and choose a new password:
+
+http://127.0.0.1:8000/accounts/reset/MQ/af66d9-b968fa17b5f94af611bb486e074a7365/
+
+Your username, in case you’ve forgotten: Aidan
+
+Thanks for using our site!
+
+The 127.0.0.1:8000 team
+
+
+
+-------------------------------------------------------------------------------
