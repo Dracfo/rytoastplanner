@@ -1,0 +1,28 @@
+{% extends "agenda/layout.html" %}
+
+{% block body %}
+<div class="container-sm">
+
+    <br>
+
+    <h2>Create a New User</h2>
+
+    <p>This will create a new user with the submitted username and a random password. For the member to use this account they will have to go through the password reset process.</p>
+
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+
+    <form action="{% url 'agenda:create_user' %}" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <input autofocus class="form-control" type="text" name="username" placeholder="Username" required>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="email" name="email" placeholder="Email Address">
+        </div>
+        <input class="btn btn-primary" type="submit" value="Create User">
+    </form>
+
+</div>
+{% endblock %}

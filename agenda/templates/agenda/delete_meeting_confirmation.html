@@ -1,0 +1,27 @@
+{% extends "agenda/layout.html" %}
+
+{% block body %}
+
+<br><br>
+
+<div class="container container-sm col-title">
+
+    <h2>Confirm Permanent Meeting Deletion</h2>
+
+    <p>Are you sure you want to delete the meeting on <b>{{ meeting.starttime }}</b> with the <b>{{ meeting.theme}}</b> theme?</p>
+    <p>The meeting will be permanently deleted and the information will not be recoverable.</p>
+
+    <form method="POST" action="{% url 'agenda:index' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">No, I want to keep the meeting</button>
+    </form>
+
+    <br>
+
+    <form method="POST" action="{% url 'agenda:delete_meeting' meeting.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">YES, DELETE THE MEETING</button>
+    </form>
+
+</div>
+{% endblock %}

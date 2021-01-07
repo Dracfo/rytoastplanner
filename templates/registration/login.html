@@ -1,0 +1,48 @@
+{% extends "agenda/layout.html" %}
+
+{% block body %}
+<div class="container-sm">
+
+    <br>
+
+    <div class="container container-sm col-title col-6">
+        <h2>Login</h2>
+    </div>
+
+    <br>
+
+    <div class="container container-sm col-title col-6">
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input autofocus class="form-control" type="text" name="username" placeholder="Username">
+            </div>
+            <div class="form-group">
+                <input class="form-control" type="password" name="password" placeholder="Password">
+            </div>
+
+            {% if form.errors %}
+                <div class="alert alert-error">
+                <ul style="list-style-type: none;">
+                    {% for field in form %}
+					    {% if field.errors %}<li style="color:red;">{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+				    {% endfor %}
+                </ul>
+                {% if form.non_field_errors %}
+                    {{ form.non_field_errors }}
+                {% endif %}
+                </div>
+            {% endif %}
+
+            <input class="btn btn-primary" type="submit" value="Login">
+        </form>
+
+        <br>
+
+        <p>Don't have an account? <a href="{% url 'agenda:register' %}">Register here.</a></p>
+
+        <p>Forgot your password? <a href="{% url 'password_reset' %}">Reset it here.</a></p>
+    </div>
+
+</div>
+{% endblock %}

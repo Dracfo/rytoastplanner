@@ -1,0 +1,188 @@
+{% extends 'agenda/layout.html' %}
+{% load static %}
+
+{% block title %}
+    Spreadsheet Scheduler
+{% endblock %}
+
+{% block body %}
+
+<br>
+
+<div class="table-responsive-xxl container">
+    <table class="table table-striped table-hover spreadsheet" style="padding: 0!important;">
+        <thead>
+            <th class="row_start"></th>
+            {% for meeting in meeting_list %}
+                <th id="{{ meeting.id }}">
+                    <a href="{% url 'agenda:meeting' meeting.id %}" style="color: black;">
+                        {{ meeting.starttime }}
+                    </a>
+                    {% if user.executive %}
+                        <a href="{% url 'agenda:edit_meeting' meeting.id %}" class="btn btn-outline-success btn-sm" style="margin: auto!important">Edit</a>
+                    {% endif %}
+                </th>
+            {% endfor %}
+        </thead>
+        <tbody>
+            {% for role, sign_ups in rolelist.items %}
+                <tr>
+                    <td class="row_start">
+                        <b>{{ role }}</b>
+                    </td>
+                    {% for member in sign_ups %}
+                        {% if member.0 == 'No Member Assigned' %}
+                            {% if user.executive %}  <!--Check if the user is an executive, if yes let them assign roles to any members-->
+                                <td id="{{ forloop.counter }}">
+                                    <form>
+                                        <select id="{{ role }}" class="form-control" onchange='OnChange(this);'>
+                                            <option>None</option>
+                                            {% for recommendation in member.1 %}
+                                                {% if recommendation != 'No Member Assigned' %}    
+                                                    {% if recommendation.time_since %}
+                                                        <option id="{{ role }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
+                                                    {% else %}
+                                                        <option id="{{ role }}">{{ recommendation }}</option>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </form>
+                                </td>
+                            {% elif user.is_authenticated %} <!--Check if the user is logedin, if yes let them sign up for empty roles-->
+                                <td>
+                                    <button href="#" class="btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                </td>
+                            {% else %} <!--If user is not loggedin, just show them that no one has signed up for the role yet-->
+                                <td>
+                                    <p>None</p>
+                                </td>   
+                            {% endif %}
+                        {% else %}
+                            <td id="{{ forloop.counter }}">
+                                {{ member }}
+                                {% if user.executive %}
+                                    <button class="btn btn-outline-danger btn-sm" onclick="DeleteRole(this);" id="{{ role }}" style="margin: auto!important">X</button>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>    
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+    
+{% endblock %}
+
+
+{% block script %}
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listeners
+        document.querySelectorAll('.role_drop_down').forEach((element) => {
+            element.addEventListener('click', () => {
+                console.log("Form submitted");
+                sign_up(element);
+                return false;
+            });
+        });
+    });
+
+    function OnChange(dropdown){
+        // Get member selection from dropdown form
+        var myindex_number = dropdown.selectedIndex;
+        console.log(myindex_number);
+        var SelValue = dropdown.options[myindex_number].value
+        SelValue = convert_user_and_roles_string_to_just_user(SelValue)
+        console.log(SelValue);
+        
+        // Get which role is being selected
+        const role = dropdown.id;
+        console.log(role);
+
+        // Get the column id
+        const column = dropdown.parentElement.parentElement.id;
+        console.log(column);
+
+        // Get the meeting id from the top of the spreadsheet
+        const meeting_id = document.querySelector("thead").children[0].children[column].id;
+        console.log(meeting_id);
+
+        //Sign the user up for the role using the API
+        result = sign_up(SelValue, role, meeting_id);
+
+        return false;
+    }
+
+    function DeleteRole(delete_button){
+
+        // Get which role is being selected
+        const role = delete_button.id;
+        console.log(role);
+
+        // Get the column id
+        const column = delete_button.parentElement.id;
+        console.log(column);
+
+        // Get the meeting id from the top of the spreadsheet
+        const meeting_id = document.querySelector("thead").children[0].children[column].id;
+        console.log(meeting_id);
+
+        //Remove the user from the role using the API
+        username = "None"
+        result = sign_up(username, role, meeting_id);
+
+
+
+        return false;
+    }
+
+
+    function sign_up(username, role, meeting_id){
+        
+        fetch('/sign_up', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'user': username,
+                'role': role,
+                'meeting_id': meeting_id
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Print result
+            console.log(result);
+            return result;
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+
+        return false;
+    }
+
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+{% endblock %}

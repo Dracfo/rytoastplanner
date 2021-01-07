@@ -1,0 +1,262 @@
+/*Style the page*/
+body{
+    background-color: #A9B2B1;
+    padding-bottom: 50px;
+}
+
+.col-title{
+    background-color: white;
+    padding: 0.5rem;
+    box-shadow: 0px 1px 4px rgb(0,0,0,0.4);
+    border-radius: 6px!important;
+}
+
+#bug-button{
+    position: fixed!important;
+    right: 20px;
+    bottom: 20px;
+    color: white;
+}
+
+
+/*Style the navbar*/
+nav{
+    background: linear-gradient(to bottom,#892c3b 0%,#69212d 100%);
+    box-shadow: 0px 1px 4px rgb(0,0,0,0.4);
+    position: -webkit-sticky; /* Safari */
+    position: sticky!important;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+}
+
+nav a{
+    color: white!important;
+    transition: color 0.2s ease-in-out;
+}
+
+nav a:hover{
+    color: #F2DF74!important;
+    transition: color 0.2s ease-in-out;
+}
+
+nav svg{
+    height: 40px;
+    fill: white;
+    transition: fill 0.2s ease-in-out;
+}
+
+nav svg:hover{
+    fill: #F2DF74!important;
+    transition: fill 0.2s ease-in-out;
+}
+
+nav .navbar-brand{
+    padding: 0;
+}
+
+.navbar-toggler{
+    color: rgba(255,255,255,.5)!important;
+    border-color: rgba(255,255,255,.1)!important;
+}
+
+nav .dropdown-menu{
+    background-color: #d1d2d4;
+}
+
+nav .dropdown-menu #dropdown-item{
+    color: black!important;
+}
+
+
+
+/*Style the page text*/
+h1{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+
+h2{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+
+h3{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+h4{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+h5{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+p{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+}
+
+b{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+input{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+}
+
+.btn{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    font-size: 0.8rem;
+}
+
+a{
+    color: #004165;
+}
+
+
+/*Style the tables*/
+.table{
+    background-color: white;
+    box-shadow: 0px 1px 4px rgb(0,0,0,0.4);
+    border-radius: 6px!important;
+    -webkit-border-radius:6px;
+    -moz-border-radius:6px;
+    overflow: hidden!important;
+    table-layout: fixed;
+}
+
+thead{
+    position: -webkit-sticky;
+    position: -moz-sticky;
+    position: -ms-sticky;
+    position: -o-sticky;
+    position: sticky;
+    top: 55px;
+}
+
+th{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    background-color: #F5F6FA;
+    border-top: none!important;
+}
+
+td{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    font-size: 0.9rem;
+    padding: 0.5rem!important;
+    width: 2%;
+}
+
+td p{
+    margin: 0;
+}
+
+.btn.btn-outline-danger.btn-sm{
+    padding: 0 4px;
+}
+
+
+
+/*Style the sidebar*/
+.sidebar{
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.sidebar .table td{
+    padding: 0.1rem 0.5rem!important;
+    max-width: 25%;
+    border-top: none;
+}
+
+.sidebar .table{
+    max-width: 100%;
+}
+
+.sidebar p{
+    margin-bottom: 0;
+    font-size: 0.7rem;
+    vertical-align: middle;
+    display: inline;
+}
+
+.sidebar b{
+    font-size: 0.7rem;
+    vertical-align: middle;
+}
+
+.sidebar select{
+    font-size: 0.7rem;
+    padding: 0 0 0 5px;
+    max-height: 25px;
+}
+
+.sidebar select option{
+    padding: 0;
+}
+
+
+/*Style the cards*/
+.card{
+    background-color: white;
+    box-shadow: 0px 1px 4px rgb(0,0,0,0.4);
+    border-radius: 6px!important;
+}
+
+
+/*Blockquote styles*/
+blockquote {
+    margin: 0;
+}
+
+blockquote p {
+    padding: 15px;
+    background: #eee;
+    border-radius: 5px;
+}
+
+blockquote p::before {
+    content: '\201C';
+}
+
+blockquote p::after {
+    content: '\201D';
+}
+
+
+/*Misc Styles*/
+hr{
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+
+
+/*Styles for small screens*/
+@media only screen and (max-width: 1000px) {
+    .sidebar{
+        display: none;
+    }
+
+    .container.col-title{
+        margin: 0;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .col-9{
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+  }
