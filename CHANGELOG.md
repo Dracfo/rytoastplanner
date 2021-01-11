@@ -24,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [0.4.1-alpha] - 2021-Jan-11
+---
+### Fixed:
+- Error with creating a meeting due to a 20 character limit on role names being hit by the Table Topics Evaluator. Changed to 30 character limit.
+
+
+
 ## [0.4.0-alpha] - 2021-Jan-11
 ---
 ### Added:

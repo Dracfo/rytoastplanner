@@ -79,7 +79,7 @@ class Eventlist(models.Model):
     meeting = models.ForeignKey("Meeting", on_delete=models.CASCADE, related_name="eventlist")
     event_number = models.IntegerField(default=100)
     description = models.CharField(max_length=256, null=True, blank=True)
-    role = models.CharField(max_length=20, null=True, blank=True)
+    role = models.CharField(max_length=30, null=True, blank=True)
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="meeting_events", null=True)
     duration = models.IntegerField(default=7)
     green_time = models.IntegerField(default=5)
