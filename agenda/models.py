@@ -75,20 +75,19 @@ ROLES = [
 ]
 
 
-class Eventlist_item(models.Model):
+class Eventlist(models.Model):
     meeting = models.ForeignKey("Meeting", on_delete=models.CASCADE, related_name="eventlist")
     event_number = models.IntegerField(default=100)
     description = models.CharField(max_length=256, null=True, blank=True)
-    role = forms.ChoiceField(
-        required=True,
-        choices=ROLES,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
+    role = models.CharField(max_length=20, null=True, blank=True)
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="meeting_events", null=True)
     duration = models.IntegerField(default=7)
     green_time = models.IntegerField(default=5)
     yellow_time = models.IntegerField(default=6)
     red_time = models.IntegerField(default=7)
+
+    def __str__(self):
+        return f"{self.id}: Meeting {self.meeting.id}, Event {self.event_number}, Description {self.description}, User {self.user}"
 
     
 class Attendee(models.Model):

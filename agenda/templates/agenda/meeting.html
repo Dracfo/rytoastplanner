@@ -59,7 +59,9 @@
                         {% for key, value in rolelist.items %}
                             <tr>
                                 <td>
-                                    <b>{{ key }}</b>
+                                    <a href="https://www.ryersontoastmasters.ca/roles-{{ key }}" target="_blank">
+                                        <b>{{ key }}</b>
+                                    </a>
                                 </td>
                                 <td>
                                     {% if value.0 == 'No Member Assigned' %}
@@ -195,51 +197,51 @@
                 <table class="table table-hover">
                     <thead class="table-light">
                         <th>Time</th>
+                        <th>Event</th>
                         <th>Role</th>
                         <th>Presenter</th>
-                        <th>Event</th>
                         <th>Duration</th>
                     </thead>
                     <tbody>
                         
                         <!--Loop through the event list and print out agenda-->
-                        {% for key, value in eventlist.items %}
+                        {% for event in eventlist %}
                             <tr>
-                                <!--Start time--><td scope="row"><b>{{ value.1 }}</b></td>
-                                <!--Role--><td>{{ value.2 }}</td>
+                                <!--Start time--><td scope="row"><b>{{ event.start_time }}</b></td>
+                                <!--Event description--><td style="white-space: pre-line">{% if request.user == event.user %}{% if event.role == 'Speaker 1' or event.role == 'Speaker 2' or event.role == 'Speaker 3' %}<form action="/update_role_description/{{ id }}" method="POST">{% csrf_token %}<input type="hidden" name="role" value="{{ event.role }}"><div class="mb-3"><textarea style="max-width: 100%; min-height: 150px;" class="form-control" name="description">{{ event.description }}</textarea></div><button type="submit" class="btn btn-primary">Save Changes</button></form>{% endif %}{% else %}{{ event.description }}{% endif %}</td>
+                                <!--Role--><td>{{ event.role }}</td>
                                 <!--Presenter--><td>
-                                    {% if value.3.0 == 'No Member Assigned' %}
+                                    {% if event.user.0 == 'No Member Assigned' %}
                                         {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
-                                            {% for member in value.3 %}
+                                            {% for member in event.user %}
                                                 {% if member != 'No Member Assigned' %}  
-                                                    <select id="{{ value.2 }}" class="form-control" onchange='OnChange(this);'>
+                                                    <select id="{{ event.role }}" class="form-control" onchange='OnChange(this);'>
                                                         <option>None</option>
                                                         {% for recommendation in member %}
                                                             {% if recommendation.time_since %}
-                                                                <option id="{{ value.2 }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
+                                                                <option id="{{ event.role }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
                                                             {% else %}
-                                                                <option id="{{ value.2 }}">{{ recommendation }}</option>
+                                                                <option id="{{ event.role }}">{{ recommendation }}</option>
                                                             {% endif %}
                                                         {% endfor %}
                                                     </select>
                                                 {% endif %}
                                             {% endfor %}
                                         {% elif user.is_authenticated %}
-                                            <button onclick="role_sign_up('{{ request.user.username }}', '{{ value.2 }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                            <button onclick="role_sign_up('{{ request.user.username }}', '{{ event.role }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
                                         {% else %}
                                             <p>None</p>
                                         {% endif %}
                                     {% else %}
+                                        {{ event.user }}
                                         {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
-                                            {% if value.3 != "" and key != "Ballot Counter" %}
-                                                {{ value.3 }}
-                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ value.2 }}', '{{ meeting.id }}', this);" id="{{ role }}_delete" style="margin: auto!important">X</button>
+                                            {% if event.user != None and event.role != "Ballot Counter" %}
+                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ event.role }}', '{{ meeting.id }}', this);" id="{{ role }}_delete" style="margin: auto!important">X</button>
                                             {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 </td>
-                                <!--Event description--><td>{{ key }}</td>
-                                <!--Duration--><td>{{ value.4 }}</td>
+                                <!--Duration--><td>{{ event.green_time }}-{{ event.yellow_time }}-{{ event.red_time }} min</td>
                             </tr>
                         {% endfor %}
                     </tbody>

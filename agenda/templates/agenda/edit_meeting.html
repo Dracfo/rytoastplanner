@@ -13,13 +13,13 @@
 
 <br>
 
-    <div class="container container-sm col-title col-6">
+    <div class="container container-sm col-title col-8">
         <h2>Edit Meeting on: {{ meeting.starttime|date:"M d, Y" }}</h2>
     </div>
 
     <br>
 
-    <div class="container container-sm col-title col-6">
+    <div class="container container-sm col-title col-8">
         <form action="/edit_meeting/{{ id }}" method="POST" style="margin: auto;">
             {% csrf_token %}
 
@@ -70,6 +70,87 @@
                 </div>
             {% endfor %}
             
+            <br>
+
+            <h4>Meeting Events</h4>
+            <hr>
+
+            <!--List all the events occuring at the meeting-->
+            <table class="table table-hover" id="events_table">
+                <thead class="table-light">
+                    <th>Order</th>
+                    <th>Description</th>
+                    <th>Role</th>
+                    <th>Duration</th>
+                    <th>Min</th>
+                    <th>Mid</th>
+                    <th>Max</th>
+                </thead>
+                <tbody>
+                    {% for event in eventlist %}
+                        <tr>
+                            <!--Event Number--><td>
+                                {{ event.event_number }}
+                                <a class="btn btn-secondary increase_event_number" onclick="increase_event_number(this)" style="color: white" id="{{ event.event_number }}">/\</a>
+                                <a class="btn btn-secondary decrease_event_number" onclick="decrease_event_number(this)" style="color: white" id="{{ event.event_number }}">\/</a>
+                            </td>
+                            <!--Event Description--><td>
+                                <div class="form-group">
+                                    <textarea id="{{ event.event_number }} description" rows="4" cols="50" name="{{ event.event_number }} description" class="form-control" value="{{ event.description }}">{{ event.description }}</textarea>
+                                </div>
+
+                            </td>
+                            <!--Event Role--><td>
+                                <div class="form-group">
+                                    <select class="form-control" name="{{ event.event_number }} role">
+                                        <option value="{{ event.role }}">{{ event.role }}</option>
+                                        {% for key, value in roles.items%}
+                                            {% if key != event.role %}
+                                                <option value="{{ key }}">{{ key }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </td>
+                            <!--Event Duration--><td>
+                                <div class="form-group">
+                                    <input type="text" id="{{ event.event_number }} duration" name="{{ event.event_number }} duration" class="form-control" value="{{ event.duration }}">
+                                </div>
+                            </td>
+                            <!--Event Minimum Time--><td>
+                                <div class="form-group">
+                                    <input type="text" id="{{ event.event_number }} min_time" name="{{ event.event_number }} min_time" class="form-control" value="{{ event.green_time }}">
+                                </div>
+                            </td>
+                            <!--Event Mid Time--><td>
+                                <div class="form-group">
+                                    <input type="text" id="{{ event.event_number }} mid_time" name="{{ event.event_number }} mid_time" class="form-control" value="{{ event.yellow_time }}">
+                                </div>
+                            </td>
+                            <!--Event Maximum Time--><td>
+                                <div class="form-group">
+                                    <input type="text" id="{{ event.event_number }} max_time" name="{{ event.event_number }} max_time" class="form-control" value="{{ event.red_time }}">
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                        <tr>
+                            <td>
+                                <a class="btn btn-primary" onclick="add_new_event(this, {{ eventlist.last.event_number|add:1 }})" style="color: white">Add New Meeting Event</a>                                    
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            
+                        </tr>
+                </tbody>
+            </table>
+            
+
+
             <button type="submit" class="btn btn-primary">Save Changes</button>
 
             <a class="btn btn-danger" href="{% url 'agenda:delete_meeting' id %}">Delete Meeting</a>
@@ -78,5 +159,219 @@
     </div>
     
 
+
+{% endblock %}
+
+{% block script %}
+    function increase_event_number(button){
+
+        // Get the needed id's
+        const event_id = button.id 
+        const meeting_id = {{ id }}
+
+        fetch('/change_event_number', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'meeting_id': meeting_id,
+                'event_id': event_id,
+                'action': 'increase',
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Print result
+            console.log(result);
+            
+            // Swap the rows on the page without refreshing the page
+            row = button.parentElement.parentElement;
+            parent = row.parentNode;
+            swaprow = row.previousElementSibling;
+            parent.insertBefore(row, swaprow);
+
+            // Swap the element id's for the rows
+            button.id = Number(event_id) - 1  // Swap the original row's id
+            swaprow.children[0].children[0].id = event_id  // Swap the swaprow button's id
+
+            //Swap the increase_event_number button id's as well
+            button.parentElement.children[1].id = Number(event_id) - 1  // Swap the original row's id
+            swaprow.children[0].children[1].id = event_id  // Swap the swaprow button's id
+
+            console.log(button.parentElement.parentElement.children[0].children)
+            console.log(swaprow.children[0].children)
+
+            //Swap the form element names
+            for (i=1;i<=6;i++){
+                element1 = row.children[i].children[0].children[0];
+                element2 = swaprow.children[i].children[0].children[0];
+                var temp = element1.name;
+                element1.name = element2.name;
+                element2.name = temp;
+            }
+
+            return result;
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+    }
+
+
+    function decrease_event_number(button){
+
+        // Get the needed id's
+        const event_id = button.id
+        const meeting_id = {{ id }}
+
+        fetch('/change_event_number', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'meeting_id': meeting_id,
+                'event_id': event_id,
+                'action': 'decrease'
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Print result
+            console.log(result);
+            
+            // Swap the rows on the page without refreshing the page
+            row = button.parentElement.parentElement;
+            parent = row.parentNode;
+            swaprow = row.nextElementSibling;
+            parent.insertBefore(swaprow, row);
+
+            // Swap the element id's for the rows
+            button.id = Number(event_id) + 1  // Swap the original row's id
+            swaprow.children[0].children[0].id = event_id  // Swap the swaprow button's id
+
+            //Swap the increase_event_number button id's as well
+            button.parentElement.children[0].id = Number(event_id) + 1  // Swap the original row's id
+            swaprow.children[0].children[1].id = event_id  // Swap the swaprow button's id
+
+            console.log(button.parentElement.parentElement.children[0].children)
+            console.log(swaprow.children[0].children)
+
+            //Swap the form element names
+            for (i=1;i<=6;i++){
+                element1 = row.children[i].children[0].children[0];
+                element2 = swaprow.children[i].children[0].children[0];
+                var temp = element1.name;
+                element1.name = element2.name;
+                element2.name = temp;
+            }
+
+            return result;
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+    }
+
+
+    function add_new_event(button, event_number) {
+        console.log(event_number)
+
+        fetch('/add_new_event', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'meeting_id': {{ id }},
+                'event_number': event_number,
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Print result
+            console.log(result);
+
+            row = button.parentElement.parentElement;
+            parent = row.parentElement;
+
+            var table = document.getElementById("events_table");
+            var new_row = table.insertRow(-1);
+            console.log(table, row)
+
+            // Create a new group of cells for the new table  row
+            cell0 = new_row.insertCell(0);
+            cell1 = new_row.insertCell(1);
+            cell2 = new_row.insertCell(2);
+            cell3 = new_row.insertCell(3);
+            cell4 = new_row.insertCell(4);
+            cell5 = new_row.insertCell(5);
+            cell6 = new_row.insertCell(6);
+
+            //populate the new cells with form HTML data
+            cell0.innerHTML = `${event_number}
+                <a class="btn btn-secondary increase_event_number" onclick="increase_event_number(this)" style="color: white" id="${event_number}">/\\</a>
+                <a class="btn btn-secondary decrease_event_number" onclick="decrease_event_number(this)" style="color: white" id="${event_number}">\\/</a>`;
+            cell1.innerHTML = `<div class="form-group">
+                    <textarea id="${event_number} description" rows="4" cols="50" name="${event_number} description" class="form-control" value="None">None</textarea>
+                </div>`;
+            cell2.innerHTML = `<div class="form-group">
+                    <select class="form-control" name="${event_number} role">
+                        <option value="">None</option>
+                        {% for key, value in roles.items%}
+                            <option value="{{ key }}">{{ key }}</option>
+                        {% endfor %}
+                    </select>
+                </div>`;
+            cell3.innerHTML = `<div class="form-group">
+                    <input type="text" id="${event_number} duration" name="${event_number} duration" class="form-control" value="7">
+                </div>`;
+            cell4.innerHTML = `<div class="form-group">
+                    <input type="text" id="${event_number} min_time" name="${event_number} min_time" class="form-control" value="5">
+                </div>`;
+            cell5.innerHTML = `<div class="form-group">
+                    <input type="text" id="${event_number} mid_time" name="${event_number} mid_time" class="form-control" value="6">
+                </div>`;
+            cell6.innerHTML = `<div class="form-group">
+                    <input type="text" id="${event_number} max_time" name="${event_number} max_time" class="form-control" value="7">
+                </div>`;
+
+            //Swap the button row with the new row
+            parent.insertBefore(new_row, row);
+
+            return result;
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+    }
+
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
 
 {% endblock %}

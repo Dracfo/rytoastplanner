@@ -24,6 +24,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [0.4.0-alpha] - 2021-Jan-11
+---
+### Added:
+- Links to role descriptions on the individual page sidebar
+- Ability to edit meeting events in the edit_meeting view
+- Ability for memebrs to update the speech description in the individual meeting page if they are signed in and signed up for that role
+
+### Changed:
+- Individual meeting page to render using the Eventlist database instead of the hardcoded string, sets up the eventlist to become editable in future.
+- Schedule view now doesn't show past meetings
+- Moved update_meeting function to the new functions.py file for non-view functions
+- Speech descriptions to include asterisks at beginning and end to differentiate the title from the description
+
+### Fixed:
+- Name appearing twice on individual meeting page
+- 'X' button not working in eventlist of individual meeting page
+- Homepage not directing to the next meeting from today
+- Meeting List View listing meetings in reverse chronological order
+
+
+
 ## [0.3.1-alpha] - 2021-Jan-07
 ---
 ### Added:
