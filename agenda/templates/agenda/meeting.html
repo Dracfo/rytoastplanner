@@ -208,7 +208,7 @@
                         {% for event in eventlist %}
                             <tr>
                                 <!--Start time--><td scope="row"><b>{{ event.start_time }}</b></td>
-                                <!--Event description--><td style="white-space: pre-line">{% if request.user == event.user %}{% if event.role == 'Speaker 1' or event.role == 'Speaker 2' or event.role == 'Speaker 3' %}<form action="/update_role_description/{{ id }}" method="POST">{% csrf_token %}<input type="hidden" name="role" value="{{ event.role }}"><div class="mb-3"><textarea style="max-width: 100%; min-height: 150px;" class="form-control" name="description">{{ event.description }}</textarea></div><button type="submit" class="btn btn-primary">Save Changes</button></form>{% endif %}{% else %}{{ event.description }}{% endif %}</td>
+                                <!--Event description--><td style="white-space: pre-line">{% if request.user == event.user %}{% if event.role == 'Speaker 1' or event.role == 'Speaker 2' or event.role == 'Speaker 3' %}<form action="/update_role_description/{{ id }}" method="POST">{% csrf_token %}<input type="hidden" name="role" value="{{ event.role }}"><div class="mb-3"><textarea style="max-width: 100%; min-height: 150px;" class="form-control" name="description">{{ event.description }}</textarea></div><button type="submit" class="btn btn-primary">Save Changes</button></form>{% else %}{{ event.description }}{% endif %}{% else %}{{ event.description }}{% endif %}</td>
                                 <!--Role--><td>{{ event.role }}</td>
                                 <!--Presenter--><td>
                                     {% if event.user.0 == 'No Member Assigned' %}

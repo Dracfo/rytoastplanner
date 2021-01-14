@@ -20,7 +20,7 @@
     <br>
 
     <div class="container container-sm col-title col-8">
-        <form action="/edit_meeting/{{ id }}" method="POST" style="margin: auto;">
+        <form action="/edit_meeting/{{ id }}" method="POST" style="margin: auto;" name="edit_meeting_form">
             {% csrf_token %}
 
             <!--Edit Meeting details-->
@@ -89,12 +89,13 @@
                 <tbody>
                     {% for event in eventlist %}
                         <tr>
-                            <!--Event Number--><td>
+                            <!--Event Number--><td style="position: relative">
                                 {{ event.event_number }}
                                 <a class="btn btn-secondary increase_event_number" onclick="increase_event_number(this)" style="color: white" id="{{ event.event_number }}">/\</a>
                                 <a class="btn btn-secondary decrease_event_number" onclick="decrease_event_number(this)" style="color: white" id="{{ event.event_number }}">\/</a>
+                                <a class="btn btn-outline-danger delete_event" onclick="delete_event(this)" style="color: black; position: absolute; left: 10px; bottom: 10px;" id="{{ event.event_number }}">Delete</a>
                             </td>
-                            <!--Event Description--><td>
+                            <!--Event Description--><td class="td-no-padding">
                                 <div class="form-group">
                                     <textarea id="{{ event.event_number }} description" rows="4" cols="50" name="{{ event.event_number }} description" class="form-control" value="{{ event.description }}">{{ event.description }}</textarea>
                                 </div>
@@ -272,6 +273,42 @@
                 element1.name = element2.name;
                 element2.name = temp;
             }
+
+            return result;
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+    }
+
+
+    function delete_event(button){
+
+        // Get the needed id's
+        const event_id = button.id
+        const meeting_id = {{ id }}
+
+        fetch('/change_event_number', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'meeting_id': meeting_id,
+                'event_id': event_id,
+                'action': 'delete'
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Print result
+            console.log(result);
+            
+            // Delete the event from the page
+            document.edit_meeting_form.submit();
 
             return result;
         })

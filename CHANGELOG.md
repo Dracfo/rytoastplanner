@@ -24,6 +24,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [0.5.0-alpha] - 2021-Jan-14
+---
+### Changed:
+- Default description for the Chairperson's introduction
+- Moved update_one_role_in_database, create_default_eventlist, role_recommendation_list, past_role_holders, and convert_role_to_shorthandfuncions to functions.py from views.py
+- Changed redirection when there isn't an upcoming meeting to the meeting list. Used to be the login apge, which was confusing.
+
+### Removed:
+- Padding from the description textarea in the edit_meeting view
+
+### Security
+- Changed DEBUG setting value to an environment variable so that it is true locally and false in production
+- Changed email password to be inputted using an environment variable
+- Also changed the gmail password so that past git commits would not compromise future security of the email account
+- Changed CSRF_COOKIE_SECURE and SESSION_COOKIE_SECURE to be True
+
+
+
 ## [0.4.1-alpha] - 2021-Jan-11
 ---
 ### Fixed:

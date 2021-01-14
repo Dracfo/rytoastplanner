@@ -140,6 +140,7 @@ thead{
     position: -o-sticky;
     position: sticky;
     top: 55px;
+    z-index: 2;
 }
 
 th{
@@ -163,6 +164,10 @@ td p{
 
 .btn.btn-outline-danger.btn-sm{
     padding: 0 4px;
+}
+
+.td-no-padding{
+    padding: 0!important;
 }
 
 
