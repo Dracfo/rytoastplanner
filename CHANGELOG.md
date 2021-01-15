@@ -8,16 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ---
 ### Added:
--
+- Meeting themes to the meeting list view
+- Bulk Create Meeting button to the navbar in the executive dropdown
+- Added the ability to create meetings in bulk with the Bulk_Create_Meetings view
 
 ### Changed:
--
+- Edit_meeting view now redirects you to the page for the meeting you just edited instead of the index page
 
 ### Removed:
 -
 
 ### Fixed:
--
+- Removed 'Edit Meeting' button for non-executives on individual meeting pages
+- Removed 'X' button from the Absences and Meeting_id row in the spreadsheet view
+- Removed the Meeting_id row from the spreadsheet view
 
 ### Security
 -

@@ -17,6 +17,9 @@
                     Date
                 </th>
                 <th>
+                    Theme
+                </th>
+                <th>
                     Speeches
                 </th>
                 <th>
@@ -37,6 +40,9 @@
                         <a href="{% url 'agenda:meeting' meeting.id %}" style="color: black;">
                             {{ meeting.date }}
                         </a>
+                    </td>
+                    <td>
+                        {{ meeting.theme }}
                     </td>
                     <td>
                         {{ meeting.speech_count }}/3

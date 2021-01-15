@@ -26,48 +26,52 @@
         </thead>
         <tbody>
             {% for role, sign_ups in rolelist.items %}
-                <tr>
-                    <td class="row_start">
-                        <b>{{ role }}</b>
-                    </td>
-                    {% for member in sign_ups %}
-                        {% if member.0 == 'No Member Assigned' %}
-                            {% if user.executive %}  <!--Check if the user is an executive, if yes let them assign roles to any members-->
-                                <td id="{{ forloop.counter }}">
-                                    <form>
-                                        <select id="{{ role }}" class="form-control" onchange='OnChange(this);'>
-                                            <option>None</option>
-                                            {% for recommendation in member.1 %}
-                                                {% if recommendation != 'No Member Assigned' %}    
-                                                    {% if recommendation.time_since %}
-                                                        <option id="{{ role }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
-                                                    {% else %}
-                                                        <option id="{{ role }}">{{ recommendation }}</option>
+                {% if role != 'Meeting_id' %}
+                    <tr>
+                        <td class="row_start">
+                            <b>{{ role }}</b>
+                        </td>
+                        {% for member in sign_ups %}
+                            {% if member.0 == 'No Member Assigned' %}
+                                {% if user.executive %}  <!--Check if the user is an executive, if yes let them assign roles to any members-->
+                                    <td id="{{ forloop.counter }}">
+                                        <form>
+                                            <select id="{{ role }}" class="form-control" onchange='OnChange(this);'>
+                                                <option>None</option>
+                                                {% for recommendation in member.1 %}
+                                                    {% if recommendation != 'No Member Assigned' %}    
+                                                        {% if recommendation.time_since %}
+                                                            <option id="{{ role }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
+                                                        {% else %}
+                                                            <option id="{{ role }}">{{ recommendation }}</option>
+                                                        {% endif %}
                                                     {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </select>
-                                    </form>
-                                </td>
-                            {% elif user.is_authenticated %} <!--Check if the user is logedin, if yes let them sign up for empty roles-->
-                                <td>
-                                    <button href="#" class="btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
-                                </td>
-                            {% else %} <!--If user is not loggedin, just show them that no one has signed up for the role yet-->
-                                <td>
-                                    <p>None</p>
-                                </td>   
-                            {% endif %}
-                        {% else %}
-                            <td id="{{ forloop.counter }}">
-                                {{ member }}
-                                {% if user.executive %}
-                                    <button class="btn btn-outline-danger btn-sm" onclick="DeleteRole(this);" id="{{ role }}" style="margin: auto!important">X</button>
+                                                {% endfor %}
+                                            </select>
+                                        </form>
+                                    </td>
+                                {% elif user.is_authenticated %} <!--Check if the user is logedin, if yes let them sign up for empty roles-->
+                                    <td>
+                                        <button href="#" class="btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                    </td>
+                                {% else %} <!--If user is not loggedin, just show them that no one has signed up for the role yet-->
+                                    <td>
+                                        <p>None</p>
+                                    </td>   
                                 {% endif %}
-                            </td>
-                        {% endif %}
-                    {% endfor %}
-                </tr>    
+                            {% else %}
+                                <td id="{{ forloop.counter }}">
+                                    {{ member }}
+                                    {% if user.executive %}
+                                        {% if role != 'Meeting_id' and role != 'Absences' %}
+                                            <button class="btn btn-outline-danger btn-sm" onclick="DeleteRole(this);" id="{{ role }}" style="margin: auto!important">X</button>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>

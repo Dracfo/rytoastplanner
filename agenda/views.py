@@ -135,6 +135,7 @@ def meeting_list(request):
     # Setup the meeting list with dates and role holders
     list_of_meetings = []
     for meeting in meeting_list_query:
+        print(meeting.theme)
 
         # Get the toastmaster for the meeting
         role_query = Rolelist.objects.filter(meeting=meeting).values('toastmaster')
@@ -165,7 +166,7 @@ def meeting_list(request):
                 speech_count += 1
 
         # Add id's, dates, and role holders to the list
-        meeting_entry_for_the_list = {'id': meeting.id, 'date': meeting.starttime.strftime("%d/%b/%Y"), 'speech_count': speech_count, 'toastmaster': toastmaster, 'geneval': geneval, 'ttmaster': ttmaster}
+        meeting_entry_for_the_list = {'id': meeting.id, 'date': meeting.starttime.strftime("%d/%b/%Y"), 'theme': meeting.theme,'speech_count': speech_count, 'toastmaster': toastmaster, 'geneval': geneval, 'ttmaster': ttmaster}
         
         # Add dictionary for the individual meeting to the list of all meetings to be passed to the template to display
         list_of_meetings.append(meeting_entry_for_the_list)
@@ -203,7 +204,7 @@ def edit_meeting(request, id):
         print(meeting, form)
         update_meeting(meeting, form)
 
-        return HttpResponseRedirect(reverse("agenda:index"))
+        return HttpResponseRedirect(reverse("agenda:meeting", args=(id,)))
 
     
     # Get meeting details
@@ -276,6 +277,60 @@ def create_meeting(request):
         id = meeting.id + 1
 
     return HttpResponseRedirect(reverse("agenda:edit_meeting", args=(id,)))
+
+
+def bulk_create_meeting(request):
+
+    # Check if the user is submitting the bulk meeting creation form
+    if request.method == 'POST':
+        # Get data from form submission
+        form = request.POST
+
+        # Organize the date information (Date and time of week, start date, end date)
+        start_date = form['start_date']
+        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+        end_date = form['end_date']
+        end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+        form_day_of_week = form['day_of_the_week']
+        start_time = form['start_time']
+
+        # Check if the end date is after the start date
+        if end_date < start_date:
+            return HttpResponseRedirect(reverse("agenda:meeting_list"))
+
+        # Get the first time a day of the week selected occurs in the date range
+        while int(start_date.weekday()) != int(form_day_of_week):
+            start_date = start_date + timedelta(days=1)
+
+        i = start_date
+        while i < end_date:
+            # Create a new meeting at the date
+            new_meeting = Meeting(starttime=datetime.combine(i, datetime.strptime(start_time, "%H:%M").time()))
+            new_meeting.save()
+
+            # Create an eventlist and rolelist for the meeting
+            new_rolelist = Rolelist(meeting=new_meeting)
+            new_rolelist.save()
+            create_default_eventlist(new_meeting)
+
+            # Mark all attendees as unknown for the meeting
+            users = User.objects.filter()
+            for user in users:
+                new_attendence = Attendee(user=user, meeting=new_meeting, status="U")
+                new_attendence.save()
+
+            # Update the meeting date for the next iteration
+            i = i + timedelta(days=7)
+
+        # Redirect to the meeting list page so user can see that all the meetings have been created
+        return HttpResponseRedirect(reverse("agenda:meeting_list"))
+
+    # Else the user is trying to access the bulk create meetings form
+    return render(request, "agenda/bulk_create_meetings.html", {
+        'date_today': date.today().strftime("%Y-%m-%d")
+    })
+
+
 
 
 def delete_meeting(request, id):

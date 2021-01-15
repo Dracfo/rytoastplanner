@@ -15,7 +15,9 @@
             <h1>Ryerson Toastmasters</h1>
             <h3>Meeting: {{ meeting.starttime }} EST</h3>
             <p style="position: absolute; top: 5px; right: 10px;"><b>Club: </b>01474196</p>
-            <a href="{% url 'agenda:edit_meeting' id %}" class="btn btn-primary" style="position: absolute; bottom: 5px; right: 10px;">Edit Meeting</a>
+            {% if request.user.executive %}
+                <a href="{% url 'agenda:edit_meeting' id %}" class="btn btn-primary" style="position: absolute; bottom: 5px; right: 10px;">Edit Meeting</a>
+            {% endif %}
         </div>
 
         <br>
