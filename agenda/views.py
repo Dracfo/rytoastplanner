@@ -4,7 +4,7 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.db.models import Q
+
 from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -16,7 +16,8 @@ import string
 from django.conf import settings 
 from django.core.mail import send_mail 
 
-from .models import User, Meeting, Rolelist, Attendee, BugForm, Buglist
+from .models import User, Meeting, Rolelist, Attendee, BugForm, Buglist, Eventlist
+from .functions import update_meeting, meeting_roles_list, update_one_role_in_database, create_default_eventlist, role_recommendation_list, past_role_holders, convert_role_to_shorthand
 
 
 # View the first upcoming meeting's individual page
@@ -27,10 +28,10 @@ def index(request):
     enddate = startdate + timedelta(days=365)
 
     # Get the next meeting
-    next_meeting = Meeting.objects.filter(starttime__range=[startdate, enddate]).first()
+    next_meeting = Meeting.objects.filter(starttime__range=[startdate, enddate]).order_by('starttime').first()
 
     if next_meeting == None:
-        return HttpResponseRedirect(reverse("login"))
+        return HttpResponseRedirect(reverse("agenda:meeting_list"))
 
     # Redirect to views.meeting to load the individual meeting page for the next meeting
     return HttpResponseRedirect(reverse("agenda:meeting", args=(next_meeting.id,)))
@@ -72,53 +73,35 @@ def meeting(request, id):
 
             # Check if logged in user has marked their attendance
             if str(attendee.user.username) == str(request.user.username):
-                alert_danger = "You haven't confirmed your attendence for this meeting yet."
+                alert_danger = f"You haven't confirmed your attendence for this meeting yet."
         elif attendee.status == "F":
             absentees.append(attendee.user)
         elif attendee.status == "T":
             confirmed_attendees.append(attendee.user)
 
+    # Get the eventlist for the meeting
+    eventlist = Eventlist.objects.filter(meeting=meeting[0]).order_by('event_number').values()
 
-    # Create list of events that will occur during the meeting
-    eventlist = {
-        'Welcome guests, introduce Toastmasters, cover meeting rules': [3, 0, "Chair", rolelist['Chair'], "1-2-3 min"],
-        'Introduce the Timer, Ah Counter, Quizmaster, and General Evaluator': [5, 0, "Toastmaster", rolelist['Toastmaster'], "3-4-5 min"],
-        'Speech 1': [7, 0, "Speaker 1", rolelist['Speaker 1'], "5-6-7 min"],
-        'Speech 2': [7, 0, "Speaker 2", rolelist['Speaker 2'], "5-6-7 min"],
-        'Speech 3': [7, 0, "Speaker 3", rolelist['Speaker 3'], "5-6-7 min"],
-        'Best Speech Voting': [1, 0, "Ballot Counter", rolelist['Facilitator'], "30-45-60 sec"],
-        'Evaluation 1': [3, 0, "Evaluator 1", rolelist['Evaluator 1'], "2-2:30-3 min"],
-        'Evaluation 2': [3, 0, "Evaluator 2", rolelist['Evaluator 2'], "2-2:30-3 min"],
-        'Evaluation 3': [3, 0, "Evaluator 3", rolelist['Evaluator 3'], "2-2:30-3 min"],
-        'Table Topics': [19, 0, "Table Topics Master", rolelist['Table Topics Master'], "10-12:30-15 min"],
-        'Best Table Topics Speech Voting': [1, 0, "Ballot Counter", rolelist['Facilitator'], "30-45-60 sec"],
-        'Table Topics Evaluations': [4, 0, "Table Topics Evaluator", rolelist['Table Topics Evaluator'], "2-3-4 min"],
-        "Timer's Report": [3, 0, "Timer", rolelist['Timer'], "1-2-3 min"],
-        "Ah Counter's Report": [3, 0, "Ah Counter", rolelist['Ah Counter'], "1-2-3 min"],
-        "Quizmaster's Report": [2, 0, "Quizmaster", rolelist['Quizmaster'], "1-1:30-2 min"],
-        "General Evaluator's Report": [5, 0, "General Evaluator", rolelist['General Evaluator'], "3-4-5 min"],
-        "Next Meeting Role/Speech Sign Ups": [3, 0, "Toastmaster", rolelist['Toastmaster'], "1-2-3 min"],
-        "Club Business and Guest Feedback": [5, 0, "Club Officer", "", "3-4-5 min"],
-        "Membership and Pathways Information": [5, 0, "Club Officer", "", "3-4-5 min"],
-        "Group Photo": [1, 0, "Facilitator", rolelist['Facilitator'], "30-45-60 sec"],
-        "Meeting Adjourned": [0, 0, "", "", ""]
-    }
+    # Update eventlist with role holders
+    for event in eventlist:
+        if event['role'] != "" and event['role'] != "None" and event['role'] != None:
+            event['user'] = rolelist[event['role']]
 
     # Add start times to each event based on the durations
     f = '%I:%M'
     t = meeting[0].starttime
     printer = t.strftime("%X")
-    for key in eventlist:
+    for event in eventlist:
         # Print event start time to eventlist
-        eventlist[key][1] = t.strftime(f)
+        event['start_time'] = t.strftime(f)
 
-        # Update event start time
-        min_to_add = eventlist[key][0]
+        # Update event start time for the next event
+        min_to_add = event['duration']
         t = t + timedelta(minutes = min_to_add)
-
+    
     # Remind users to login or register in roder to sign up for roles and speeches
     if request.user.is_authenticated == False:
-        alert_danger = "Login to sign up for a role or speech this meeting."
+        alert_danger = f"Login to sign up for a role or speech this meeting."
 
     # Get the list of all bugs reported
     bugs = Buglist.objects.filter()
@@ -143,15 +126,16 @@ def meeting(request, id):
 def meeting_list(request):
 
     # Get the start and end dates for the next year
-    startdate = date.today() - timedelta(days=1)
-    enddate = startdate + timedelta(days=366)
+    startdate = date.today() - timedelta(days=30)
+    enddate = startdate + timedelta(days=396)
 
     # Get the list of meetings for the next year
-    meeting_list_query = Meeting.objects.filter(starttime__range=[startdate, enddate])
+    meeting_list_query = Meeting.objects.filter(starttime__range=[startdate, enddate]).order_by('starttime')
 
     # Setup the meeting list with dates and role holders
     list_of_meetings = []
     for meeting in meeting_list_query:
+        print(meeting.theme)
 
         # Get the toastmaster for the meeting
         role_query = Rolelist.objects.filter(meeting=meeting).values('toastmaster')
@@ -182,7 +166,7 @@ def meeting_list(request):
                 speech_count += 1
 
         # Add id's, dates, and role holders to the list
-        meeting_entry_for_the_list = {'id': meeting.id, 'date': meeting.starttime.strftime("%d/%b/%Y"), 'speech_count': speech_count, 'toastmaster': toastmaster, 'geneval': geneval, 'ttmaster': ttmaster}
+        meeting_entry_for_the_list = {'id': meeting.id, 'date': meeting.starttime.strftime("%d/%b/%Y"), 'theme': meeting.theme,'speech_count': speech_count, 'toastmaster': toastmaster, 'geneval': geneval, 'ttmaster': ttmaster}
         
         # Add dictionary for the individual meeting to the list of all meetings to be passed to the template to display
         list_of_meetings.append(meeting_entry_for_the_list)
@@ -217,10 +201,10 @@ def edit_meeting(request, id):
         meeting = Meeting.objects.get(id=id)
 
         # Update meeting information
-        print(meeting)
+        print(meeting, form)
         update_meeting(meeting, form)
 
-        return HttpResponseRedirect(reverse("agenda:index"))
+        return HttpResponseRedirect(reverse("agenda:meeting", args=(id,)))
 
     
     # Get meeting details
@@ -236,6 +220,9 @@ def edit_meeting(request, id):
         # Create a new rolelist
         new_rolelist = Rolelist(meeting=new_meeting)
         new_rolelist.save()
+
+        # Create a new Eventlist
+        create_default_eventlist(new_meeting)
 
         # Mark all attendees as unknown
         users = User.objects.filter()
@@ -260,6 +247,9 @@ def edit_meeting(request, id):
     start_time = meeting.starttime.time().strftime("%H:%M")
     start_date = meeting.starttime.date().strftime("%Y-%m-%d")
 
+    # Get the eventlist for the meeting
+    eventlist = Eventlist.objects.filter(meeting=meeting).order_by('event_number').values()
+
     return render(request, "agenda/edit_meeting.html", {
         'new_meeting': False,
         'id': id,
@@ -268,6 +258,7 @@ def edit_meeting(request, id):
         'start_time': start_time,
         'roles': roles,
         'users': users,
+        'eventlist': eventlist,
     })
 
 
@@ -286,6 +277,60 @@ def create_meeting(request):
         id = meeting.id + 1
 
     return HttpResponseRedirect(reverse("agenda:edit_meeting", args=(id,)))
+
+
+def bulk_create_meeting(request):
+
+    # Check if the user is submitting the bulk meeting creation form
+    if request.method == 'POST':
+        # Get data from form submission
+        form = request.POST
+
+        # Organize the date information (Date and time of week, start date, end date)
+        start_date = form['start_date']
+        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+        end_date = form['end_date']
+        end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+        form_day_of_week = form['day_of_the_week']
+        start_time = form['start_time']
+
+        # Check if the end date is after the start date
+        if end_date < start_date:
+            return HttpResponseRedirect(reverse("agenda:meeting_list"))
+
+        # Get the first time a day of the week selected occurs in the date range
+        while int(start_date.weekday()) != int(form_day_of_week):
+            start_date = start_date + timedelta(days=1)
+
+        i = start_date
+        while i < end_date:
+            # Create a new meeting at the date
+            new_meeting = Meeting(starttime=datetime.combine(i, datetime.strptime(start_time, "%H:%M").time()))
+            new_meeting.save()
+
+            # Create an eventlist and rolelist for the meeting
+            new_rolelist = Rolelist(meeting=new_meeting)
+            new_rolelist.save()
+            create_default_eventlist(new_meeting)
+
+            # Mark all attendees as unknown for the meeting
+            users = User.objects.filter()
+            for user in users:
+                new_attendence = Attendee(user=user, meeting=new_meeting, status="U")
+                new_attendence.save()
+
+            # Update the meeting date for the next iteration
+            i = i + timedelta(days=7)
+
+        # Redirect to the meeting list page so user can see that all the meetings have been created
+        return HttpResponseRedirect(reverse("agenda:meeting_list"))
+
+    # Else the user is trying to access the bulk create meetings form
+    return render(request, "agenda/bulk_create_meetings.html", {
+        'date_today': date.today().strftime("%Y-%m-%d")
+    })
+
+
 
 
 def delete_meeting(request, id):
@@ -312,12 +357,10 @@ def delete_meeting(request, id):
     })
 
 
-
-
 def spreadsheet(request):
 
     # Find meetings in next 4 months
-    startdate = date.today() - timedelta(days=31)
+    startdate = date.today()
     enddate = date.today() + timedelta(days=62)
     meeting_list = Meeting.objects.filter(starttime__range=[startdate, enddate])
 
@@ -412,113 +455,6 @@ def spreadsheet(request):
     })
 
 
-def meeting_roles_list(meeting):
-    
-    # Get the meeting information
-    roles = Rolelist.objects.filter(meeting=meeting)
-
-    # Create a list of all the roles and who has filled them
-    rolelist = {
-        'Toastmaster': roles[0].toastmaster,
-        'Chair': roles[0].chair,
-        'Facilitator': roles[0].facilitator,
-        'General Evaluator': roles[0].geneval,
-        'Speaker 1': roles[0].speaker1,
-        'Speaker 2': roles[0].speaker2,
-        'Speaker 3': roles[0].speaker3,
-        'Evaluator 1': roles[0].eval1,
-        'Evaluator 2': roles[0].eval2,
-        'Evaluator 3': roles[0].eval3,
-        'Table Topics Master': roles[0].ttmaster,
-        'Table Topics Evaluator': roles[0].tteval,
-        'Timer': roles[0].timer,
-        'Ah Counter': roles[0].ah_counter,
-        'Ballot Counter': roles[0].facilitator,
-        'Quizmaster': roles[0].quizmaster,
-    } 
-
-    return rolelist
-
-
-def update_meeting(meeting, new_roles):
-
-    # Update the meeting time
-    new_datetime = new_roles['date'] + " " + new_roles['start_time']
-    meeting.starttime = new_datetime
-    print(meeting)
-    print(new_roles)
-
-    # Update the meeting WoD and Theme
-    meeting.wod = new_roles['wod']
-    meeting.theme = new_roles['theme']
-
-    meeting.save()
-
-    # Get the meeting information
-    roles = Rolelist.objects.get(meeting=meeting)
-
-    # Create a list of all the old roles and who has filled them
-    rolelist = {
-        'Toastmaster': roles.toastmaster,
-        'Chair': roles.chair,
-        'Facilitator': roles.facilitator,
-        'General Evaluator': roles.geneval,
-        'Speaker 1': roles.speaker1,
-        'Speaker 2': roles.speaker2,
-        'Speaker 3': roles.speaker3,
-        'Evaluator 1': roles.eval1,
-        'Evaluator 2': roles.eval1,
-        'Evaluator 3': roles.eval1,
-        'Table Topics Master': roles.ttmaster,
-        'Table Topics Evaluator': roles.tteval,
-        'Timer': roles.timer,
-        'Ah Counter': roles.ah_counter,
-        'Ballot Counter': roles.facilitator,
-        'Quizmaster': roles.quizmaster,
-    }
-
-    for old_key in rolelist:  # Iterate through the old rolelist
-        for new_key in new_roles:  # Iterate through the new roles user has submitted
-            if old_key == new_key:  # If the roles in both lists match (ex: Toastmaster and Toastmaster)
-                if str(rolelist[old_key]) != str(new_roles[new_key]):  # If the new role assignment is different than the old role assignment
-                    if old_key == 'Toastmaster':
-                        roles.toastmaster = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Chair':
-                        roles.chair = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Facilitator':
-                        roles.facilitator = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'General Evaluator':
-                        roles.geneval = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Speaker 1':
-                        roles.speaker1 = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Speaker 2':
-                        roles.speaker2 = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Speaker 3':
-                        roles.speaker3 = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Evaluator 1':
-                        roles.eval1 = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Evaluator 2':
-                        roles.eval2 = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Evaluator 3':
-                        roles.eval3 = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Table Topics Master':
-                        roles.ttmaster = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Table Topics Evaluator':
-                        roles.tteval = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Timer':
-                        roles.timer = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Ah Counter':
-                        roles.ah_counter = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Ballot Counter':
-                        roles.facilitator = User.objects.filter(username=new_roles[new_key]).first()
-                    elif old_key == 'Quizmaster':
-                        roles.quizmaster = User.objects.filter(username=new_roles[new_key]).first()
-                    
-                    roles.save()     
-
-    return
-
-
 @login_required
 def attendence(request):
     # Updating attendence must be via POST request
@@ -569,188 +505,26 @@ def sign_up(request):
     return JsonResponse({"message": "Role Updated successfully."}, status=201)
 
 
-def update_one_role_in_database(role, rolelist, user):
-    #Iterate through all the roles in plain text, if you find a match update the database entry
-    if role == "Facilitator":
-        if user == "None":
-            rolelist.facilitator = None
-        else:
-            rolelist.facilitator = user
-        rolelist.save()
-        return True
-    elif role == "Toastmaster":
-        if user == "None":
-            rolelist.toastmaster = None
-        else:
-            rolelist.toastmaster = user
-        rolelist.save()
-        return True
-    elif role == "General Evaluator":
-        if user == "None":
-            rolelist.geneval = None
-        else:
-            rolelist.geneval = user
-        rolelist.save()
-        return True
-    elif role == "Chair":
-        if user == "None":
-            rolelist.chair = None
-        else:
-            rolelist.chair = user
-        rolelist.save()
-        return True
-    
-    elif role == "Speaker 1":
-        if user == "None":
-            rolelist.speaker1 = None
-        else:
-            rolelist.speaker1 = user
-        rolelist.save()
-        return True
-    elif role == "Speaker 2":
-        if user == "None":
-            rolelist.speaker2 = None
-        else:
-            rolelist.speaker2 = user
-        rolelist.save()
-        return True
-    elif role == "Speaker 3":
-        if user == "None":
-            rolelist.speaker3 = None
-        else:
-            rolelist.speaker3 = user
-        rolelist.save()
-        return True
-    elif role == "Evaluator 1":
-        if user == "None":
-            rolelist.eval1 = None
-        else:
-            rolelist.eval1 = user
-        rolelist.save()
-        return True
-    elif role == "Evaluator 2":
-        if user == "None":
-            rolelist.eval2 = None
-        else:
-            rolelist.eval2 = user
-        rolelist.save()
-        return True
-    elif role == "Evaluator 3":
-        if user == "None":
-            rolelist.eval3 = None
-        else:
-            rolelist.eval3 = user
-        rolelist.save()
-        return True
-    
-    elif role == "Table Topics Master":
-        if user == "None":
-            rolelist.ttmaster = None
-        else:
-            rolelist.ttmaster = user
-        rolelist.save()
-        return True
-    elif role == "Table Topics Evaluator":
-        if user == "None":
-            rolelist.tteval = None
-        else:
-            rolelist.tteval = user
-        rolelist.save()
-        return True
-    
-    elif role == "Timer":
-        if user == "None":
-            rolelist.timer = None
-        else:
-            rolelist.timer = user
-        rolelist.save()
-        return True
-    elif role == "Ah Counter":
-        if user == "None":
-            rolelist.ah_counter = None
-        else:
-            rolelist.ah_counter = user
-        rolelist.save()
-        return True
-    elif role == "Quizmaster":
-        if user == "None":
-            rolelist.quizmaster = None
-        else:
-            rolelist.quizmaster = user
-        rolelist.save()
-        return True
+# How members update the descriptions for their speeches
+@login_required
+def update_role_description(request, id):
 
-    return false
+     # If user is submitting the update description form
+    if request.method == "POST":
+        
+        # Get data from form submission
+        form = request.POST
 
+        # Get the existing meeting information
+        meeting = Meeting.objects.get(id=id)
 
-def role_recommendation_list(meeting):
-    recommendation_list = {'Toastmaster': [], 'Facilitator': [], 'Chair': [], 'General Evaluator': [], 'Speaker 1': [], 'Speaker 2': [], 'Speaker 3': [], 'Evaluator 1': [], 'Evaluator 2': [], 'Evaluator 3': [], 'Table Topics Master': [], 'Table Topics Evaluator': [], 'Timer': [], 'Ah Counter': [], 'Ballot Counter': [], 'Quizmaster': [], 'Sergeant At Arms': []}
-    temp_rec = []
-
-    # Get list of users with confirmed or unknown attendence
-    attendees = Attendee.objects.filter(meeting=meeting).filter(Q(status="T") | Q(status="U"))
-
-    # Get all user information
-    users = []
-    for attendee in attendees:
-        user = {'user': attendee.user.username, 'speech_count': attendee.user.speech_count, 'meeting_count': attendee.user.meeting_count, 'other_role': "", 'days_since_last_time': ""}
-        users.append(user)
-
-    # Sort users by experience level
-    users.sort(key=sortByMeetingCountFunc)
-
-    # Iterate through each of the meeting roles and get a recommendation list for each
-    for role in recommendation_list:
-
-        # Add all the users who will be attending
-        for user in users:
-            recommendation_list[role].append(user['user'])
-
-        # Use the past role holders function to get the list of people who have held the role in the past time period
-        past_holders = past_role_holders(meeting, role)
-
-        for index, recommendation in enumerate(recommendation_list[role]):
-            if past_holders == False:
-                continue
-
-            for user_info in past_holders:
-                if recommendation == user_info['user']:
-                    del recommendation_list[role][index]
-                    recommendation_list[role].append(user_info)
-
-        # Figure out and label the users who already have a role this meeting
-        rolelist = meeting_roles_list(meeting)
-
-        # Iterate through the existing list of recommendations for the role
-        for index, recommendation in enumerate(recommendation_list[role]):
-
-            # Iterate throguh the rolelist for the selected meeting
-            for meeting_role in rolelist:
-
-                # Check if the user being recommended already holds a role this meeting
-                if str(recommendation) == str(rolelist[meeting_role]):
-
-                    # Add the role to the user string to display in the dropdown role selector menu
-                    recommendation_list[role][index] = " ".join((recommendation_list[role][index], "[" + str(meeting_role) + "]"))
-                
-                # Check if the user is a past role holder, they have to be treated differently because they use a dictionary instead of a plain string
-                for key in recommendation:
-                    if key == 'user':
-
-                        # Check if the user being recommended already holds a role this meeting
-                        if str(recommendation[key]) == str(rolelist[meeting_role]):
-
-                            # Add the role to the user string to display in the dropdown role selector menu
-                            recommendation_list[role][index]['user'] = " ".join((recommendation_list[role][index]['user'], "[" + str(meeting_role) + "]"))
-
-    return recommendation_list
-
-
-def sortByMeetingCountFunc(e):
-    return e['meeting_count']
-
-def sortByTimeSinceFunc(e):
-    return e['time_since']
+        # Update meeting event information
+        event = Eventlist.objects.get(meeting=meeting, role=form['role'])
+        event.description = form['description']
+        event.save()
+        
+    # Return to the index page
+    return HttpResponseRedirect(reverse("agenda:index"))
 
 
 def fetch_call_recommend_one_role(request):
@@ -773,86 +547,23 @@ def fetch_call_recommend_one_role(request):
     return JsonResponse(recommendation_list, safe=False)
 
 
+def add_new_event(request):
+    # Updating role holder must be via POST request
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
 
-def past_role_holders(meeting, role):
+    # Get JSON data from request
+    data = json.loads(request.body.decode("utf-8"))
+    meeting_id = data.get("meeting_id", "")
+    event_number = data.get("event_number", "")
 
-    # Get the past 2 months of meetings
-    startdate = meeting.starttime - timedelta(days=62)
-    enddate = meeting.starttime - timedelta(days=1)
-    meeting_list_query = Meeting.objects.filter(starttime__range=[startdate, enddate])
+    # Get the list for this meeting and role
+    meeting = Meeting.objects.get(id=meeting_id)
+    new_event = Eventlist(meeting=meeting, event_number=event_number)
+    new_event.save()
 
-    # Check if there are past meetings
-    if not meeting_list_query:
-        return False
-
-    # Get the role holder for each meeting
-    recommendations = []
-    for past_meeting in meeting_list_query:
-        
-        # Get who held the role at the meeting
-        role_holder = ""
-        role_list = Rolelist.objects.get(meeting=past_meeting)
-        for field in role_list._meta.fields:
-            if field.name == convert_role_to_shorthand(role):
-                role_holder = str(getattr(role_list, field.name))
-
-        # Get the time since the meeting
-        time_since_role = meeting.starttime - past_meeting.starttime
-        time_since_role = time_since_role.days
-
-        # Assign a color to indicate how long it has been
-        if time_since_role < 14:
-            indicator = 'red'
-        elif time_since_role < 31:
-            indicator = '#CCCC00'
-        else:
-            indicator = 'green'
-        
-        recommendations.append({'user': role_holder, 'time_since': time_since_role, 'indicator': indicator})
-
-    return recommendations
-
-
-# Function to convert the plain text display versions of roles to the shorthand I use for the database and backend
-def convert_role_to_shorthand(role):
-    #Iterate through all the roles, if you find a match return the shorthand version of the role
-    if role == "Facilitator":
-        return "facilitator"
-    elif role == "Toastmaster":
-        return "toastmaster"
-    elif role == "General Evaluator":
-        return "geneval"
-    elif role == "Chair":
-        return "chair"
-    
-    elif role == "Speaker 1":
-        return "speaker1"
-    elif role == "Speaker 2":
-        return "speaker2"
-    elif role == "Speaker 3":
-        return "speaker3"
-    elif role == "Evaluator 1":
-        return "eval1"
-    elif role == "Evaluator 2":
-        return "eval2"
-    elif role == "Evaluator 3":
-        return "eval3"
-    
-    elif role == "Table Topics Master":
-        return "ttmaster"
-    elif role == "Table Topics Evaluator":
-        return "tteval"
-    
-    elif role == "Timer":
-        return "timer"
-    elif role == "Ah Counter":
-        return "ah_counter"
-    elif role == "Quizmaster":
-        return "quizmaster"
-    elif role == "Ballot Counter":
-        return "facilitator"
-
-    return "Invalid Role"
+    # Return json response with success message
+    return JsonResponse(f'Successfully added new event {event_number} to meeting {meeting_id}', safe=False)
 
 
 def report_bug(request):
@@ -892,6 +603,57 @@ def bug_list(request):
     return render(request, "agenda/bug_list.html", {
         'bug_list': list_of_bugs,
     })
+
+
+def change_event_number(request):
+    # Updating attendence must be via POST request
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    # Get fetch request data
+    data = json.loads(request.body.decode("utf-8"))
+    event_number = data.get("event_id", "")
+    action = data.get('action', "")
+    meeting_id = data.get("meeting_id", "")
+
+    # Check if the event is being deleted
+    if action == 'delete':
+        meeting = Meeting.objects.get(id=meeting_id)  # Get the meeting
+        event = Eventlist.objects.get(meeting=meeting, event_number=event_number)  # Get the event to be deleted
+        event.delete()  # Delete the event
+
+        # Update the event number of all the following events
+        eventlist = Eventlist.objects.filter(meeting=meeting).order_by('event_number')
+        for event in eventlist:
+            if int(event.event_number) > int(event_number):
+                event.event_number = int(event.event_number) - int(1)
+                event.save()
+
+        return JsonResponse(f'Event {event_number} successfully deleted', safe=False)  # Return success message
+
+    # Check if event is being increased or decreased
+    elif action == 'increase':
+        event_number2 = int(event_number) - 1
+    elif action == 'decrease':
+        event_number2 = int(event_number) + 1
+
+    if event_number2 == 0:
+        return JsonResponse("Can't increase the first entry", safe=False)
+
+    # Get the meeting info
+    meeting = Meeting.objects.get(id=meeting_id)
+
+    # Update eventlist order in the database
+    event1 = Eventlist.objects.get(meeting=meeting, event_number=event_number)
+    event2 = Eventlist.objects.get(meeting=meeting, event_number=event_number2)
+
+    event1.event_number = event_number2
+    event1.save()
+    event2.event_number = event_number
+    event2.save()
+
+    action = [{'action': 'status'}]
+    return JsonResponse(action, safe=False)
 
 
 def login_view(request):

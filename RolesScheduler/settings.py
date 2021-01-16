@@ -22,11 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = '=o*clt0u_f+oj@q^gf*y)d8v%#&b7vd5i^&318nsi+hz67)(1!'
-SECRET_KEY = os.environ.get('SECRET_KEY', default="unsafe-secret-key")
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ['DEBUG_VALUE']
 
 ALLOWED_HOSTS = ['rytoastplanner.herokuapp.com']
 
@@ -80,6 +79,10 @@ REST_FRAMEWORK = {
     ]
 }
 
+# HTTPS Settings
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -115,8 +118,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'RyToastPlanner@gmail.com'
-EMAIL_HOST_PASSWORD = '7F65qZM&IpVA'
+EMAIL_HOST_USER = 'rytoastplanner@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ['RYTOAST_EMAIL_HOST_PASSWORD']
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
