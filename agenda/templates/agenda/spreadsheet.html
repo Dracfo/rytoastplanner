@@ -51,8 +51,8 @@
                                         </form>
                                     </td>
                                 {% elif user.is_authenticated %} <!--Check if the user is logedin, if yes let them sign up for empty roles-->
-                                    <td>
-                                        <button href="#" class="btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                    <td id="{{ forloop.counter }}">
+                                        <button onclick="sign_up('{{ request.user.username }}', '{{ role }}', 'spreadsheet_exception', this);" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
                                     </td>
                                 {% else %} <!--If user is not loggedin, just show them that no one has signed up for the role yet-->
                                     <td>
@@ -62,9 +62,9 @@
                             {% else %}
                                 <td id="{{ forloop.counter }}">
                                     {{ member }}
-                                    {% if user.executive %}
+                                    {% if user.executive or request.user == member %}
                                         {% if role != 'Meeting_id' and role != 'Absences' %}
-                                            <button class="btn btn-outline-danger btn-sm" onclick="DeleteRole(this);" id="{{ role }}" style="margin: auto!important">X</button>
+                                            <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ role }}', 'spreadsheet_exception', this);" id="{{ role }}" style="margin: auto!important">X</button>
                                         {% endif %}
                                     {% endif %}
                                 </td>

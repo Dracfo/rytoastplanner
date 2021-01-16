@@ -85,15 +85,15 @@
                                                 {% endfor %}
                                             {% endif %}
                                         {% elif user.is_authenticated %}
-                                            <button onclick="role_sign_up('{{ request.user.username }}', '{{ key }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                            <button onclick="sign_up('{{ request.user.username }}', '{{ key }}', '{{ meeting.id }}', this);" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
                                         {% else %}
                                             <p>None</p>
                                         {% endif %}
                                     {% else %}
                                         <p>{{ value }}</p>
-                                        {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                        {% if value == request.user or user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
                                             {% if key != "" and key != "Ballot Counter" %}
-                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ key }}', '{{ meeting.id }}');" id="{{ role }}_delete" style="margin: auto!important">X</button>
+                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ key }}', '{{ meeting.id }}', this);" id="{{ role }}_delete" style="margin: auto!important">X</button>
                                             {% endif %}
                                         {% endif %}
                                     {% endif %}
@@ -230,13 +230,13 @@
                                                 {% endif %}
                                             {% endfor %}
                                         {% elif user.is_authenticated %}
-                                            <button onclick="role_sign_up('{{ request.user.username }}', '{{ event.role }}', '{{ meeting.id }}');" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                            <button onclick="sign_up('{{ request.user.username }}', '{{ event.role }}', '{{ meeting.id }}', this);" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
                                         {% else %}
                                             <p>None</p>
                                         {% endif %}
                                     {% else %}
                                         {{ event.user }}
-                                        {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                        {% if event.user == request.user or user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
                                             {% if event.user != None and event.role != "Ballot Counter" %}
                                                 <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ event.role }}', '{{ meeting.id }}', this);" id="{{ role }}_delete" style="margin: auto!important">X</button>
                                             {% endif %}
@@ -319,6 +319,7 @@
     });
 
 
+    // Function to sign user up for a role when an executive chooses an option from the dropdown menu
     function OnChange(dropdown){
         // Get member selection from dropdown form
         var myindex_number = dropdown.selectedIndex;
@@ -340,7 +341,7 @@
         return false;
     }
 
-    // Function to parse string fo user and their roles this meeting to return just the user as a string
+    // Function to parse string of user and their roles this meeting to return just the user as a string
     function convert_user_and_roles_string_to_just_user(input){   
         record = []
 
@@ -438,93 +439,6 @@
             document.querySelector(`#${username}_decline_attendence`).style.display = 'block';
             document.querySelector(`#${username}_decline_attendence`).innerHTML = username;
         });
-
-        return false;
-    }
-
-
-    function sign_up(username, role, meeting_id, button){
-        
-        console.log(username, role, meeting_id);
-
-        fetch('/sign_up', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers:{
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': csrftoken,
-            },
-            body: JSON.stringify({
-                'user': username,
-                'role': role,
-                'meeting_id': meeting_id
-            })
-        })
-        .then(response => response.json())
-        .then(result => {
-            // Print result
-            console.log(result);
-            return result;
-        })
-        .catch(function (err) {
-            console.log(err);
-        });
-
-        // If the function call was to remove the user, update innerHTML with a role recommendation list
-        if (username == 'None'){
-            console.log("We're in the username == 'None' condition")
-            console.log(role, meeting_id)
-
-            fetch('/fetch_call_recommend_one_role', {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers:{
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': csrftoken,
-                },
-                body: JSON.stringify({
-                    'role': role,
-                    'meeting_id': meeting_id
-                })
-            })
-            .then(response => response.json())
-            .then(result => {
-                // Print result
-                console.log(result);
-                console.log(result[0]['recommendation_list']);
-
-                // Get the recommendation list from the fetch call result
-                recommendation_list = result[0]['recommendation_list']
-
-                // Make the recommendation list into a printable string
-                recommendation_str = "";
-                for (index in recommendation_list){
-                    if (typeof yourVariable === 'Object'){
-                        recommendation_str = recommendation_str + `<option>${recommendation_list[index]['user']} - ${recommendation_list[index]['time_since']}  days ago</option>`;
-                    }
-                    else{
-                        recommendation_str = recommendation_str + `<option>${recommendation_list[index]}</option>`;
-                    }
-                }
-
-                // Update the innerHTML
-                console.log(`Role being deleted: ${role}`)
-                console.log(button.parentElement)
-                button.parentElement.innerHTML = `<select id="{{ value.2 }}" class="form-control" onchange='OnChange(this);'>
-                    <option>None</option>
-                    ${recommendation_str}
-                </select>`
-
-
-                return result;
-            })
-            .catch(function (err) {
-                console.log(err);
-            });
-        }
-        
 
         return false;
     }

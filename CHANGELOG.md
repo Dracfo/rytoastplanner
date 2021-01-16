@@ -8,6 +8,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ---
 ### Added:
+-
+
+### Changed:
+-
+
+### Removed:
+-
+
+### Fixed:
+-
+
+### Security
+-
+
+
+
+## [0.6.1-alpha] - 2021-Jan-15
+---
+### Added:
+- Ability for members to sign up and reject roles in the spreadsheet view using the 'Sign Up' and 'X' buttons
+
+### Fixed:
+- 'Sign Up' button not working on the individual meeting page
+- Member not being able to remove themselves from a role on individual meeting page
+
+
+
+## [0.6.0-alpha] - 2021-Jan-15
+---
+### Added:
 - Meeting themes to the meeting list view
 - Bulk Create Meeting button to the navbar in the executive dropdown
 - Added the ability to create meetings in bulk with the Bulk_Create_Meetings view
@@ -15,16 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed:
 - Edit_meeting view now redirects you to the page for the meeting you just edited instead of the index page
 
-### Removed:
--
-
 ### Fixed:
 - Removed 'Edit Meeting' button for non-executives on individual meeting pages
 - Removed 'X' button from the Absences and Meeting_id row in the spreadsheet view
 - Removed the Meeting_id row from the spreadsheet view
-
-### Security
--
 
 
 
