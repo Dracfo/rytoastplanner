@@ -24,7 +24,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-## [0.6.1-alpha] - 2021-Jan-15
+## [0.6.2-alpha] - 2021-Jan-16
+---
+### Fixed:
+- Spreadsheet now displays meetings ordered by date instead of meeting number
+
+
+
+
+## [0.6.1-alpha] - 2021-Jan-16
 ---
 ### Added:
 - Ability for members to sign up and reject roles in the spreadsheet view using the 'Sign Up' and 'X' buttons
