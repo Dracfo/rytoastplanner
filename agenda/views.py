@@ -362,7 +362,7 @@ def spreadsheet(request):
     # Find meetings in next 4 months
     startdate = date.today()
     enddate = date.today() + timedelta(days=62)
-    meeting_list = Meeting.objects.filter(starttime__range=[startdate, enddate])
+    meeting_list = Meeting.objects.filter(starttime__range=[startdate, enddate]).order_by('starttime')
 
     # Get the next meeting information
     roles = {}
