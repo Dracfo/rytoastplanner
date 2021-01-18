@@ -80,8 +80,8 @@ REST_FRAMEWORK = {
 }
 
 # HTTPS Settings
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases

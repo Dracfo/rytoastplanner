@@ -20,7 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ### Security
--
+- 
+
+
+
+## [0.7.1-alpha] - 2021-Jan-18
+---
+### Security
+- Set CSRF_COOKIE_SECURE = False and SESSION_COOKIE_SECURE = False to try and fix issues with logging in.
 
 
 
