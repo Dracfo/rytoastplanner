@@ -222,11 +222,11 @@
     
       <!--Alert Message for user if one exists-->
       {% if alert_danger %}
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger do-not-print" role="alert">
           {{ alert_danger }}
         </div>
       {%elif alert_success %}
-        <div class="alert alert-success" role="alert">
+        <div class="alert alert-success do-not-print" role="alert">
           {{ alert_success }}
         </div>
       {% endif %}
@@ -237,7 +237,7 @@
 
 
     <!--Floating Report a Bug Button-->
-    <a href="{% url 'agenda:report_bug' %}" class="btn btn-danger" id="bug-button">Report a Bug</button>
+    <a href="{% url 'agenda:report_bug' %}" class="btn btn-danger do-not-print" id="bug-button">Report a Bug</button>
 
 </body>
 </html>

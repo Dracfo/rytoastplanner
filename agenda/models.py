@@ -30,6 +30,7 @@ class Meeting(models.Model):
 class Rolelist(models.Model):
     meeting = models.ForeignKey("Meeting", on_delete=models.CASCADE, related_name="rolelist")
     facilitator = models.ForeignKey("User", on_delete=models.CASCADE, related_name="facilitator", null=True)
+    zoom = models.ForeignKey("User", on_delete=models.CASCADE, related_name="zoom", null=True)
     toastmaster = models.ForeignKey("User", on_delete=models.CASCADE, related_name="toastmaster", null=True)
     geneval = models.ForeignKey("User", on_delete=models.CASCADE, related_name="geneval", null=True)
     saa = models.ForeignKey("User", on_delete=models.CASCADE, related_name="saa", null=True)
@@ -96,7 +97,7 @@ class Attendee(models.Model):
     status = models.CharField(max_length=1, default="U")
 
     def __str__(self):
-        return f"Meeting {self.meeting.id}: {self.user} {self.status}"
+        return f"Meeting {self.meeting.starttime.date()}: {self.user} {self.status}"
 
 
 # List of the different kinds of bugs users can submit

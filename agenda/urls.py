@@ -17,7 +17,10 @@ urlpatterns = [
     path("report_bug", views.report_bug, name="report_bug"),
     path("bug_list", views.bug_list, name="bug_list"),
     path("update_role_description/<id>", views.update_role_description, name="update_role_description"),
+    path("confirmation_emails/<id>", views.confirmation_emails, name="confirmation_emails"),
 
+    # Meeting Confirmation from email routes
+    path("confirm_attendance/<id>/<username>/<status>", views.confirm_attendance, name="confirm_attendance"),
 
     # Authentication routes
     path("register/", views.register, name="register"),

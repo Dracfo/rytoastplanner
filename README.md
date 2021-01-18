@@ -1,7 +1,7 @@
 # RyToast Planner - A Toastmasters Meeting Role Scheduling Webapp
 Rytoast Planner is a web app created to schedule club members for roles at the Ryerson Toastmasters. Created using Django 3.1.2, Python 3.9, Bootstrap 4.4.1, and Heroku Postgres.
 
-This app was created as the capstone project for [CS50’s Web Programming with Python and JavaScript](https://cs50.harvard.edu/web/2020/) course.
+This app was originally created as the capstone project for [CS50’s Web Programming with Python and JavaScript](https://cs50.harvard.edu/web/2020/) course.
 
 Visit the live website: https://rytoastplanner.herokuapp.com/
 
@@ -28,7 +28,9 @@ Visit the live website: https://rytoastplanner.herokuapp.com/
 #### Meeting Management
 - Executives can create, edit, and delete meetings.
 - Set and manage the meeting start time, theme, and word of the day
+- Manage the events that occur at each meeting (duration, description, role, order, user)
 - View the meetings individually, as a list, or as a spreadsheet.
+- Bulk create a group of meeting using the 'Bulk Create Meetings' button
 
 #### Individual Meeting View
 - View all the events of the meeting, including start times, duration, member assigned, and event description
@@ -38,6 +40,7 @@ Visit the live website: https://rytoastplanner.herokuapp.com/
 #### Meeting List View
 - View the date of each meeting with a link to view the full meeting page
 - View the number of speeches scheduled for each meeting
+- View the theme for the meeting
 - View the currently scheduled Toastmaster, General Evaluator, and Topicsmaster for each meeting
 
 #### Spreadsheet View
@@ -55,6 +58,7 @@ Visit the live website: https://rytoastplanner.herokuapp.com/
 
 #### Authentication and Administration
 - Register an account, log in, logout.
+- Reset password via email confirmation
 - Executives can create new member accounts.
 - Executives are assigned using the Django Admin panel.
 - Report a bug with the floating "Report a Bug" button.
@@ -77,16 +81,24 @@ The following is a list of all the significant files in the web app and a descri
     - **\agenda\migrations** contains the migration information to create an SQL database for the web app.
     - **\agenda\templates\admin.py** allows the databases to be viewed from the Django admin panel.
     - **\agenda\templates\models.py** contains the models that the SQL database uses
-        - There are models for the users, meetings, role lists, attendees, and the bug list.
+        - There are models for the users, meetings, role lists, attendees, eventlists, and the bug list.
         - There is a form for the bug list.
         - There is also a function to display 'deleted' where a user used to be if their account is deleted.
     - **\agenda\templates\views.py** contains all the views and many of the functions of the web app.
         - The views are for the index, meeting, meeting list, edit meeting, create a meeting, delete a meeting, spreadsheet, report a bug, see the bug list, register an account, and create a user.
-        - The functions are to create a meeting roles list, update a meeting role list, update one role in the database, make a role recommendation list, sort a list of members, get a list of past role holders for a specific role and meeting, and convert a display text role to the backend role shorthand.
         - The API functions it contains are to update attendance records and sign up for a role.
+    - **\agenda\templates\functions.py** contains all the helper functions for the web app. The functions are to:
+        - Update a meeting role list
+        - Update one role in the database
+        - Create a meeting roles list
+        - Create a new set of Eventlist models based on default meeting events
+        - Make a role recommendation list
+        - Sort a list of members
+        - Get a list of past role holders for a specific role and meeting
+        - Convert a display text role to the backend role shorthand.
     - **\agenda\templates\urls.py** contains all the URL patterns for the agenda app including:
-        - spreadsheet, meeting, edit meeting, create a meeting, delete a meeting, meeting list, report bug, bug list, register, and create a user.
-        - It also includes URLs for the API routes to update attendance records and sign up for a role.
+        - spreadsheet, meeting, edit meeting, create a meeting, bulk create meetings, delete a meeting, meeting list, report bug, bug list, update a role description, register, and create a user.
+        - It also includes URLs for the API routes to update attendance records, sign up for a role, make a recommendation list for a role, change an event number, and add a new event.
 
 
 
@@ -103,12 +115,12 @@ View the [live website](https://rytoastplanner.herokuapp.com/)
 View the [CHANGELOG](CHANGELOG.md)
 
 Future Features:
-- Ability to add and edit individual events at a meeting.
 - Calendar page to see all meetings at a glance and add them to the user's 3rd party calendar.
 - A panel for executives to manage members' accounts.
 - Printer-friendly individual meeting view
 - Printer-friendly spreadsheet view
 - Ability to create and manage new Toastmasters Clubs
+- Ability for a user to manage their profile (Username, email, password, image, etc)
 
 
 

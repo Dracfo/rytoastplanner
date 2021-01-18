@@ -24,6 +24,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [0.7.0-alpha] - 2021-Jan-18
+---
+### Added:
+- Latest features to the README.md file
+- Zoom Master role
+- An email confirmation view for every meeting which can be used to send confirmation emails
+- Ability for members to confirm their attendance at a meeting through a url sent to their email
+
+
+### Removed:
+- Removed attendance information and bug button from the page when it is printed
+- Removed Facilitator and Ballot Counter from displaying in individual meeting and spreadsheet pages
+
+
+
 ## [0.6.2-alpha] - 2021-Jan-16
 ---
 ### Fixed:

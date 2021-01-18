@@ -26,7 +26,7 @@
         </thead>
         <tbody>
             {% for role, sign_ups in rolelist.items %}
-                {% if role != 'Meeting_id' %}
+                {% if role != 'Meeting_id' and role != 'Facilitator' and role != 'Ballot Counter' %} <!--Exclude these roles from beign displayed in the spreadsheet-->
                     <tr>
                         <td class="row_start">
                             <b>{{ role }}</b>
