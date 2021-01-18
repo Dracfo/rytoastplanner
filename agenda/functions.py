@@ -270,7 +270,7 @@ def create_default_eventlist(meeting):
         ['Evaluation 1', "Evaluator 1", 3, 2, 2.5, 3],
         ['Evaluation 2', "Evaluator 2", 3, 2, 2.5, 3],
         ['Evaluation 3', "Evaluator 3", 3, 2, 2.5, 3],
-        ['Table Topics', "Table Topics Master", 15, 10, 12.5, 15],
+        ['Table Topics', "Table Topics Master", 25, 15, 20, 25],
         ['Best Table Topics Speech Voting', "Zoom Master", 1, 0.5, 0.75, 1],
         ['Table Topics Evaluations', "Table Topics Evaluator", 4, 2, 3, 4],
         ["Timer's Report", "Timer", 3, 1, 2, 3],
@@ -279,8 +279,8 @@ def create_default_eventlist(meeting):
         ["Ballot Counter's Report", "Zoom Master", 2, 1, 1, 2],
         ["General Evaluator's Report", "General Evaluator", 5, 3, 4, 5],
         ["Next Meeting Role/Speech Sign Ups", "Toastmaster", 3, 1, 2, 3],
-        ["Club Business and Guest Feedback", "", 4, 2, 3, 4],
-        ["Membership and Pathways Information", "", 4, 2, 3, 4],
+        ["Club Business and Guest Feedback", "", 3, 1, 2, 3],
+        ["Membership and Pathways Information", "", 3, 1, 2, 3],
         ["Group Photo", "Zoom Master", 1, 0.5, 0.75, 1],
         ["Meeting Adjourned", "", 0, 0, 0, 0]
     ]
