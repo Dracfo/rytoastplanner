@@ -24,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [1.0.2-beta] - 2021-Jan-19
+---
+### Added:
+- Meeting Theme to the spreadsheet view
+
+
+
 ## [1.0.1-beta] - 2021-Jan-19
 ---
 ### Changed:

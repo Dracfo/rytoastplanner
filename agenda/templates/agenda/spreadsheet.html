@@ -25,6 +25,18 @@
             {% endfor %}
         </thead>
         <tbody>
+            <!--Add the meeting themes to top of spreadsheet-->
+            <tr>
+                <td>
+                    <b>Meeting Theme</b>
+                </td>
+                {% for meeting in meeting_list %}
+                    <td>
+                        {{ meeting.theme }}
+                    </td>
+                {% endfor %}
+            </tr>
+
             {% for role, sign_ups in rolelist.items %}
                 {% if role != 'Meeting_id' and role != 'Facilitator' and role != 'Ballot Counter' %} <!--Exclude these roles from beign displayed in the spreadsheet-->
                     <tr>
