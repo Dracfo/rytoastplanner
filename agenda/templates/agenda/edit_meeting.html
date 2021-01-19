@@ -150,18 +150,14 @@
                 </tbody>
             </table>
             
-
-
             <button type="submit" class="btn btn-primary">Save Changes</button>
 
             <a class="btn btn-danger" href="{% url 'agenda:delete_meeting' id %}">Delete Meeting</a>
 
         </form>
     </div>
-    
-
-
 {% endblock %}
+
 
 {% block script %}
     function increase_event_number(button){
