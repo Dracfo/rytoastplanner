@@ -26,6 +26,7 @@ def update_meeting(meeting, new_roles):
         'Toastmaster': roles.toastmaster,
         'Chair': roles.chair,
         'Facilitator': roles.facilitator,
+        'Zoom Master': roles.zoom,
         'General Evaluator': roles.geneval,
         'Speaker 1': roles.speaker1,
         'Speaker 2': roles.speaker2,
@@ -51,6 +52,8 @@ def update_meeting(meeting, new_roles):
                         roles.chair = User.objects.filter(username=new_roles[new_key]).first()
                     elif old_key == 'Facilitator':
                         roles.facilitator = User.objects.filter(username=new_roles[new_key]).first()
+                    elif old_key == 'Zoom Master':
+                        roles.zoom = User.objects.filter(username=new_roles[new_key]).first()
                     elif old_key == 'General Evaluator':
                         roles.geneval = User.objects.filter(username=new_roles[new_key]).first()
                     elif old_key == 'Speaker 1':
@@ -110,6 +113,13 @@ def update_one_role_in_database(role, rolelist, user):
             rolelist.facilitator = None
         else:
             rolelist.facilitator = user
+        rolelist.save()
+        return True
+    elif role == "Zoom Master":
+        if user == "None":
+            rolelist.zoom = None
+        else:
+            rolelist.zoom = user
         rolelist.save()
         return True
     elif role == "Toastmaster":
@@ -227,6 +237,7 @@ def meeting_roles_list(meeting):
         'Toastmaster': roles[0].toastmaster,
         'Chair': roles[0].chair,
         'Facilitator': roles[0].facilitator,
+        'Zoom Master': roles[0].zoom,
         'General Evaluator': roles[0].geneval,
         'Speaker 1': roles[0].speaker1,
         'Speaker 2': roles[0].speaker2,
@@ -238,7 +249,7 @@ def meeting_roles_list(meeting):
         'Table Topics Evaluator': roles[0].tteval,
         'Timer': roles[0].timer,
         'Ah Counter': roles[0].ah_counter,
-        'Ballot Counter': roles[0].facilitator,
+        'Ballot Counter': roles[0].zoom,
         'Quizmaster': roles[0].quizmaster,
     } 
 
@@ -255,21 +266,22 @@ def create_default_eventlist(meeting):
         ['*Speech 1*\nPathway: \nLevel: \nProject: ', "Speaker 1", 7, 5, 6, 7],
         ['*Speech 2*\nPathway: \nLevel: \nProject: ', "Speaker 2", 7, 5, 6, 7],
         ['*Speech 3*\nPathway: \nLevel: \nProject: ', "Speaker 3", 7, 5, 6, 7],
-        ['Best Speech Voting', "Ballot Counter", 1, 0.5, 0.75, 1],
+        ['Best Speech Voting', "Zoom Master", 1, 0.5, 0.75, 1],
         ['Evaluation 1', "Evaluator 1", 3, 2, 2.5, 3],
         ['Evaluation 2', "Evaluator 2", 3, 2, 2.5, 3],
         ['Evaluation 3', "Evaluator 3", 3, 2, 2.5, 3],
-        ['Table Topics', "Table Topics Master", 15, 10, 12.5, 15],
-        ['Best Table Topics Speech Voting', "Ballot Counter", 1, 0.5, 0.75, 1],
+        ['Table Topics', "Table Topics Master", 25, 15, 20, 25],
+        ['Best Table Topics Speech Voting', "Zoom Master", 1, 0.5, 0.75, 1],
         ['Table Topics Evaluations', "Table Topics Evaluator", 4, 2, 3, 4],
         ["Timer's Report", "Timer", 3, 1, 2, 3],
         ["Ah Counter's Report", "Ah Counter", 3, 1, 2, 3],
         ["Quizmaster's Report", "Quizmaster", 3, 1, 2, 3],
+        ["Ballot Counter's Report", "Zoom Master", 2, 1, 1, 2],
         ["General Evaluator's Report", "General Evaluator", 5, 3, 4, 5],
         ["Next Meeting Role/Speech Sign Ups", "Toastmaster", 3, 1, 2, 3],
-        ["Club Business and Guest Feedback", "", 4, 2, 3, 4],
-        ["Membership and Pathways Information", "", 4, 2, 3, 4],
-        ["Group Photo", "Facilitator", 1, 0.5, 0.75, 1],
+        ["Club Business and Guest Feedback", "", 3, 1, 2, 3],
+        ["Membership and Pathways Information", "", 3, 1, 2, 3],
+        ["Group Photo", "Zoom Master", 1, 0.5, 0.75, 1],
         ["Meeting Adjourned", "", 0, 0, 0, 0]
     ]
 
@@ -288,7 +300,7 @@ def create_default_eventlist(meeting):
 
 
 def role_recommendation_list(meeting):
-    recommendation_list = {'Toastmaster': [], 'Facilitator': [], 'Chair': [], 'General Evaluator': [], 'Speaker 1': [], 'Speaker 2': [], 'Speaker 3': [], 'Evaluator 1': [], 'Evaluator 2': [], 'Evaluator 3': [], 'Table Topics Master': [], 'Table Topics Evaluator': [], 'Timer': [], 'Ah Counter': [], 'Ballot Counter': [], 'Quizmaster': [], 'Sergeant At Arms': []}
+    recommendation_list = {'Toastmaster': [], 'Facilitator': [], 'Zoom Master': [],'Chair': [], 'General Evaluator': [], 'Speaker 1': [], 'Speaker 2': [], 'Speaker 3': [], 'Evaluator 1': [], 'Evaluator 2': [], 'Evaluator 3': [], 'Table Topics Master': [], 'Table Topics Evaluator': [], 'Timer': [], 'Ah Counter': [], 'Ballot Counter': [], 'Quizmaster': [], 'Sergeant At Arms': []}
     temp_rec = []
 
     # Get list of users with confirmed or unknown attendence
@@ -401,6 +413,8 @@ def convert_role_to_shorthand(role):
     #Iterate through all the roles, if you find a match return the shorthand version of the role
     if role == "Facilitator":
         return "facilitator"
+    elif role == "Zoom Master":
+        return "zoom"
     elif role == "Toastmaster":
         return "toastmaster"
     elif role == "General Evaluator":

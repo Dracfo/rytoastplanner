@@ -12,12 +12,22 @@
     <div class="container-xl">
         
         <div class="container col-title" style="position: relative">
-            <h1>Ryerson Toastmasters</h1>
+            <img class="only-on-print" style="display: none; max-width: 100%;" src="{% static 'agenda/Toastmasters Agenda Header.png' %}">
+            <br class="only-on-print">
+            <h1 class="do-not-print">Ryerson Toastmasters</h1>
             <h3>Meeting: {{ meeting.starttime }} EST</h3>
-            <p style="position: absolute; top: 5px; right: 10px;"><b>Club: </b>01474196</p>
-            {% if request.user.executive %}
-                <a href="{% url 'agenda:edit_meeting' id %}" class="btn btn-primary" style="position: absolute; bottom: 5px; right: 10px;">Edit Meeting</a>
-            {% endif %}
+            <p style="position: absolute; top: 5px; right: 10px;" class="do-not-print block-on-small-window">District 60, Division I, Area 82, Club 01474196</p>
+            <p style="position: absolute; top: 25px; right: 10px;" class="do-not-print block-on-small-window"><b>Meetings every Tuesday 6-8 pm</b></p>
+            
+            <!--Group of Buttons to Control Meeting Settings-->
+            <div id="button-group" class="do-not-print"> 
+                <a href="#" class="btn btn-primary do-not-print" onclick="window.print();">Print Agenda</a>
+                {% if request.user.executive %}
+                    <a href="{% url 'agenda:confirmation_emails' id %}" class="btn btn-primary do-not-print">Email Confirmations</a>
+                    <a href="{% url 'agenda:edit_meeting' id %}" class="btn btn-primary do-not-print">Edit Meeting</a>
+                {% endif %}
+            </div>
+            
         </div>
 
         <br>
@@ -26,7 +36,7 @@
         <div class="row">
 
             <!--Sidebar-->
-                <div class="col-3 sidebar">
+                <div class="col-3 sidebar do-not-print">
 
                     <!--Sidebar group with meeting information-->
                     <table class="table table-hover">
@@ -59,46 +69,48 @@
                     <!--Sidebar group with the role sign ups and holders-->
                     <table class="table table-hover">
                         {% for key, value in rolelist.items %}
-                            <tr>
-                                <td>
-                                    <a href="https://www.ryersontoastmasters.ca/roles-{{ key }}" target="_blank">
-                                        <b>{{ key }}</b>
-                                    </a>
-                                </td>
-                                <td>
-                                    {% if value.0 == 'No Member Assigned' %}
-                                        {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
-                                            {% if value.0 == 'No Member Assigned' %}
-                                                {% for member in value %}
-                                                    {% if member != 'No Member Assigned' %}  
-                                                        <select id="{{ key }}" class="form-control form-select-sm" aria-label=".form-select-sm" onchange='OnChange(this);'>
-                                                            <option>None</option>
-                                                            {% for recommendation in member %}
-                                                                {% if recommendation.time_since %}
-                                                                    <option id="{{ key }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
-                                                                {% else %}
-                                                                    <option id="{{ key }}">{{ recommendation }}</option>
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </select>
-                                                    {% endif %}
-                                                {% endfor %}
+                            {% if key != 'Facilitator' and key != 'Ballot Counter' %}
+                                <tr>
+                                    <td>
+                                        <a href="https://www.ryersontoastmasters.ca/roles-{{ key }}" target="_blank">
+                                            <b>{{ key }}</b>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if value.0 == 'No Member Assigned' %}
+                                            {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                                {% if value.0 == 'No Member Assigned' %}
+                                                    {% for member in value %}
+                                                        {% if member != 'No Member Assigned' %}  
+                                                            <select id="{{ key }}" class="form-control form-select-sm do-not-print" aria-label=".form-select-sm" onchange='OnChange(this);'>
+                                                                <option>None</option>
+                                                                {% for recommendation in member %}
+                                                                    {% if recommendation.time_since %}
+                                                                        <option id="{{ key }}" style="color: {{ recommendation.indicator}}">{{ recommendation.user }} - {{ recommendation.time_since }} days ago</option>
+                                                                    {% else %}
+                                                                        <option id="{{ key }}">{{ recommendation }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </select>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% elif user.is_authenticated %}
+                                                <button onclick="sign_up('{{ request.user.username }}', '{{ key }}', '{{ meeting.id }}', this);" class="btn btn-sm btn-primary do-not-print" style="white-space: nowrap;">Sign Up</button>
+                                            {% else %}
+                                                <p>None</p>
                                             {% endif %}
-                                        {% elif user.is_authenticated %}
-                                            <button onclick="sign_up('{{ request.user.username }}', '{{ key }}', '{{ meeting.id }}', this);" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
                                         {% else %}
-                                            <p>None</p>
-                                        {% endif %}
-                                    {% else %}
-                                        <p>{{ value }}</p>
-                                        {% if value == request.user or user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
-                                            {% if key != "" and key != "Ballot Counter" %}
-                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ key }}', '{{ meeting.id }}', this);" id="{{ role }}_delete" style="margin: auto!important">X</button>
+                                            <p>{{ value }}</p>
+                                            {% if value == request.user or user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                                {% if key != "" and key != "Ballot Counter" %}
+                                                    <button class="btn btn-outline-danger btn-sm do-not-print" onclick="sign_up('None', '{{ key }}', '{{ meeting.id }}', this);" id="{{ role }}_delete" style="margin: auto!important">X</button>
+                                                {% endif %}
                                             {% endif %}
                                         {% endif %}
-                                    {% endif %}
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                            {% endif %}
                         {% endfor %}
                     </table>
 
@@ -192,6 +204,26 @@
                         </tr>
                     </table>
 
+                    <!--Sidebar List of Guests-->
+                    <div>
+                        <table class="table table-hover">
+                            <tr>
+                                <td>
+                                    <b>Guest List:</b>
+                                    {% if request.user.executive or request.user == 'Toastmaster' %}
+                                        <form action="{% url 'agenda:update_guest_list' meeting.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <textarea cols="12" class="form-control" name="guest_list_body">{{ meeting.guestlist }}</textarea>
+                                            <br>
+                                            <button type="submit" class="btn btn-sm btn-primary mb-3">Save Changes</button>
+                                        </form>
+                                    {% else %}
+                                        <p>{{ meeting.guestlist }}</p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
 
             <!--Table for agenda and roles-->
@@ -210,14 +242,14 @@
                         {% for event in eventlist %}
                             <tr>
                                 <!--Start time--><td scope="row"><b>{{ event.start_time }}</b></td>
-                                <!--Event description--><td style="white-space: pre-line">{% if request.user == event.user %}{% if event.role == 'Speaker 1' or event.role == 'Speaker 2' or event.role == 'Speaker 3' %}<form action="/update_role_description/{{ id }}" method="POST">{% csrf_token %}<input type="hidden" name="role" value="{{ event.role }}"><div class="mb-3"><textarea style="max-width: 100%; min-height: 150px;" class="form-control" name="description">{{ event.description }}</textarea></div><button type="submit" class="btn btn-primary">Save Changes</button></form>{% else %}{{ event.description }}{% endif %}{% else %}{{ event.description }}{% endif %}</td>
+                                <!--Event description--><td style="white-space: pre-line">{% if request.user == event.user %}{% if event.role == 'Speaker 1' or event.role == 'Speaker 2' or event.role == 'Speaker 3' %}<form action="/update_role_description/{{ id }}" method="POST">{% csrf_token %}<input type="hidden" name="role" value="{{ event.role }}"><div class="mb-3"><textarea style="max-width: 100%; min-height: 150px;" class="form-control" name="description">{{ event.description }}</textarea></div><button type="submit" class="btn btn-primary do-not-print">Save Changes</button></form>{% else %}{{ event.description }}{% endif %}{% else %}{{ event.description }}{% endif %}</td>
                                 <!--Role--><td>{{ event.role }}</td>
                                 <!--Presenter--><td>
                                     {% if event.user.0 == 'No Member Assigned' %}
                                         {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
                                             {% for member in event.user %}
                                                 {% if member != 'No Member Assigned' %}  
-                                                    <select id="{{ event.role }}" class="form-control" onchange='OnChange(this);'>
+                                                    <select id="{{ event.role }}" class="form-control do-not-print" onchange='OnChange(this);'>
                                                         <option>None</option>
                                                         {% for recommendation in member %}
                                                             {% if recommendation.time_since %}
@@ -230,7 +262,7 @@
                                                 {% endif %}
                                             {% endfor %}
                                         {% elif user.is_authenticated %}
-                                            <button onclick="sign_up('{{ request.user.username }}', '{{ event.role }}', '{{ meeting.id }}', this);" class="btn btn-sm btn-primary" style="white-space: nowrap;">Sign Up</button>
+                                            <button onclick="sign_up('{{ request.user.username }}', '{{ event.role }}', '{{ meeting.id }}', this);" class="btn btn-sm btn-primary do-not-print" style="white-space: nowrap;">Sign Up</button>
                                         {% else %}
                                             <p>None</p>
                                         {% endif %}
@@ -238,7 +270,7 @@
                                         {{ event.user }}
                                         {% if event.user == request.user or user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
                                             {% if event.user != None and event.role != "Ballot Counter" %}
-                                                <button class="btn btn-outline-danger btn-sm" onclick="sign_up('None', '{{ event.role }}', '{{ meeting.id }}', this);" id="{{ role }}_delete" style="margin: auto!important">X</button>
+                                                <button class="btn btn-outline-danger btn-sm do-not-print" onclick="sign_up('None', '{{ event.role }}', '{{ meeting.id }}', this);" id="{{ role }}_delete" style="margin: auto!important">X</button>
                                             {% endif %}
                                         {% endif %}
                                     {% endif %}
@@ -252,15 +284,15 @@
 
 
                 <!--Attendee and Absentee information-->
-                <br><hr><br>
+                <br class="do-not-print"><hr class="do-not-print"><br class="do-not-print">
 
-                <div class="container col-title">
+                <div class="container col-title do-not-print">
                     <h2>Member Attendence Information</h2>
                 </div>
 
-                <br>
+                <br class="do-not-print">
                 
-                <div class="row">
+                <div class="row do-not-print">
                     <div class="col-sm-4">
                       <div class="card">
                         <div class="card-body">
@@ -300,7 +332,7 @@
                             {% if not absentees %}
                                 <p class="card-text">No Members</p>
                             {% endif %}
-                            <button href="" id="decline_attendence_btn" class="btn btn-danger" value="{{ username }}">Confirm NOT Attending</button>
+                            <button href="" class="btn btn-danger" onclick="decline_attendence('{{ meeting.id }}', '{{ request.user.username }}', 'meeting', this)">Confirm NOT Attending</button>
                           </div>
                         </div>
                       </div>
@@ -439,6 +471,93 @@
             document.querySelector(`#${username}_decline_attendence`).style.display = 'block';
             document.querySelector(`#${username}_decline_attendence`).innerHTML = username;
         });
+
+        return false;
+    }
+
+
+    function sign_up(username, role, meeting_id, button){
+        
+        console.log(username, role, meeting_id);
+
+        fetch('/sign_up', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'user': username,
+                'role': role,
+                'meeting_id': meeting_id
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Print result
+            console.log(result);
+            return result;
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+
+        // If the function call was to remove the user, update innerHTML with a role recommendation list
+        if (username == 'None'){
+            console.log("We're in the username == 'None' condition")
+            console.log(role, meeting_id)
+
+            fetch('/fetch_call_recommend_one_role', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers:{
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    'role': role,
+                    'meeting_id': meeting_id
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                // Print result
+                console.log(result);
+                console.log(result[0]['recommendation_list']);
+
+                // Get the recommendation list from the fetch call result
+                recommendation_list = result[0]['recommendation_list']
+
+                // Make the recommendation list into a printable string
+                recommendation_str = "";
+                for (index in recommendation_list){
+                    if (typeof yourVariable === 'Object'){
+                        recommendation_str = recommendation_str + `<option>${recommendation_list[index]['user']} - ${recommendation_list[index]['time_since']}  days ago</option>`;
+                    }
+                    else{
+                        recommendation_str = recommendation_str + `<option>${recommendation_list[index]}</option>`;
+                    }
+                }
+
+                // Update the innerHTML
+                console.log(`Role being deleted: ${role}`)
+                console.log(button.parentElement)
+                button.parentElement.innerHTML = `<select id="{{ value.2 }}" class="form-control" onchange='OnChange(this);'>
+                    <option>None</option>
+                    ${recommendation_str}
+                </select>`
+
+
+                return result;
+            })
+            .catch(function (err) {
+                console.log(err);
+            });
+        }
+        
 
         return false;
     }

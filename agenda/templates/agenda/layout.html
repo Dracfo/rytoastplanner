@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!--Connect to the css style sheet for the web app-->
-    <link href="{% static 'agenda/styles.css' %}" rel="stylesheet">
+    <link href="{% static 'agenda/css/styles.css' %}" rel="stylesheet">
 
     <!--Bring in the jQuery--> 
     <script src=https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js></script>
@@ -160,7 +160,6 @@
 
         return false;
     }
-
     </script>
 </head>
 <body>
@@ -205,6 +204,14 @@
                             </li>
                         {% endif %}
                     {% endif %}
+                    <!--Member resources tab-->
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Resources</a>
+                      <div class="dropdown-menu">
+                        <a class="dropdown-item" id="dropdown-item" href="https://www.ryersontoastmasters.ca/role-descriptions/" target="_blank">Role Descriptions</a>
+                        <a class="dropdown-item" id="dropdown-item" href="https://www.toastmasters.org/pathways/basecamporpathways" target="_blank">Basecamp</a>
+                      </div>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
                     </li>
@@ -212,9 +219,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Log In</a>
                     </li>
-                    <li class="nav-item">
+                    <!--<li class="nav-item">
                         <a class="nav-link" href="{% url 'agenda:register' %}">Register</a>
-                    </li>
+                    </li>-->
                 {% endif %}
             </ul>
         </div>
@@ -222,11 +229,11 @@
     
       <!--Alert Message for user if one exists-->
       {% if alert_danger %}
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger do-not-print" role="alert">
           {{ alert_danger }}
         </div>
-      {%elif alert_success %}
-        <div class="alert alert-success" role="alert">
+      {% elif alert_success %}
+        <div class="alert alert-success do-not-print" role="alert">
           {{ alert_success }}
         </div>
       {% endif %}
@@ -237,7 +244,7 @@
 
 
     <!--Floating Report a Bug Button-->
-    <a href="{% url 'agenda:report_bug' %}" class="btn btn-danger" id="bug-button">Report a Bug</button>
+    <a href="{% url 'agenda:report_bug' %}" class="btn btn-danger do-not-print" id="bug-button">Report a Bug</button>
 
 </body>
 </html>

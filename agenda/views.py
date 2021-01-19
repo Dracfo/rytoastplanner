@@ -4,7 +4,7 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-
+from re import findall
 from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 import random
 import string
 from django.conf import settings 
-from django.core.mail import send_mail 
+from django.core.mail import send_mail, EmailMessage
 
 from .models import User, Meeting, Rolelist, Attendee, BugForm, Buglist, Eventlist
 from .functions import update_meeting, meeting_roles_list, update_one_role_in_database, create_default_eventlist, role_recommendation_list, past_role_holders, convert_role_to_shorthand
@@ -357,6 +357,7 @@ def delete_meeting(request, id):
     })
 
 
+@login_required
 def spreadsheet(request):
 
     # Find meetings in next 4 months
@@ -392,6 +393,7 @@ def spreadsheet(request):
         'Toastmaster': [],
         'Chair': [],
         'Facilitator': [],
+        'Zoom Master': [],
         'General Evaluator': [],
         'Speaker 1': [],
         'Speaker 2': [],
@@ -403,7 +405,7 @@ def spreadsheet(request):
         'Table Topics Evaluator': [],
         'Timer': [],
         'Ah Counter': [],
-        'Ballot Counter': [],
+        'Ballot Counter':[],
         'Quizmaster': [],
         'Absences': all_meetings_absentee_list,
     } 
@@ -431,21 +433,22 @@ def spreadsheet(request):
                         rolelist[role_key].append(initial_rolelist[i][role_key])
     
     
-    # Add role recommendations to the rolelist
-    # Iterate through all the roles in the rolelist
-    for role in rolelist:
+    # Add role recommendations to the rolelist if the user is an executive
+    if request.user.executive:
+        # Iterate through all the roles in the rolelist
+        for role in rolelist:
 
-        # Iterate through the holder holders for the role and track the index number (To compare with meeting index number and find the meeting id)
-        for role_index, role_holder in enumerate(rolelist[role]):
+            # Iterate through the holder holders for the role and track the index number (To compare with meeting index number and find the meeting id)
+            for role_index, role_holder in enumerate(rolelist[role]):
 
-            # If no one is assigned to the role, get a list of recommendations. Else skip to next role
-            if role_holder == None:
+                # If no one is assigned to the role, get a list of recommendations. Else skip to next role
+                if role_holder == None:
 
-                for recommendation_index, meeting_id in enumerate(id_list):
+                    for recommendation_index, meeting_id in enumerate(id_list):
 
-                    if recommendation_index == role_index:
+                        if recommendation_index == role_index:
 
-                        rolelist[role][role_index] = ['No Member Assigned', role_recommendations[meeting_id][role]]
+                            rolelist[role][role_index] = ['No Member Assigned', role_recommendations[meeting_id][role]]
 
     return render(request, "agenda/spreadsheet.html", {
         'rolelist': rolelist,
@@ -654,6 +657,110 @@ def change_event_number(request):
 
     action = [{'action': 'status'}]
     return JsonResponse(action, safe=False)
+
+
+@login_required
+def confirmation_emails(request, id):
+    # If the user is not an executive reroute them to the main page
+    if request.user.executive == False:
+        return HttpResponseRedirect(reverse('agenda:index'))
+
+    # Check if an email form is being submitted
+    if request.method =="POST":
+        # Get data from form submission
+        form = request.POST
+        recipients = findall('\S+@\S+', form['recipients']) # Get the recipients list
+
+        # Create and send the email for each recipient
+        for member_email in recipients:
+            try:  # Try to send a user the email, except if the user doesn't exist.
+                username = User.objects.filter(email=member_email).first().username # Get the recipient's name
+                body = form['body'] # Get the email body
+                body = body.replace("$/Name/$", username)  # Replace the variables in the body with the user's name
+                email = EmailMessage(form['subject'], body, to=[member_email])  # Create the email message
+                email.send()  # Send the email
+            except:
+                pass
+        
+        # Redirect the user to the meeting page
+        return HttpResponseRedirect(reverse("agenda:meeting", args=(id,)))
+
+
+    # Else user is trying to access the email confirmation dashboard page
+
+    # Get all necesarry information from database
+    meeting = Meeting.objects.get(id=id)  # Get the meeting user wants to make confirmation emails for
+    attendees = Attendee.objects.filter(meeting=meeting).values()  # Get the users in attendence at the meeting
+
+    for attendee in attendees:  # Add contact information to each attendee
+        # Get the User information
+        user = User.objects.get(id=attendee['user_id'])
+
+        # Append user contact info to attendees list
+        attendee['username'] = user.username
+        attendee['email'] = user.email
+        attendee['role'] = []
+
+    # Add roles to all attendee information
+    rolelist = meeting_roles_list(meeting)
+    for role in rolelist:  # Iterate through the rolelist
+        if rolelist[role] != None:  # Exclude any roles without a user holding them
+            for attendee in attendees:  # Iterate through the attendee list to find a match for the role holder
+                if str(rolelist[role]) == str(attendee['username']):
+                    attendee['role'].append(str(role))
+    
+    # Make a list of the roles that still have to be filled
+    unfilled_roles = []
+    for role in rolelist:
+        if rolelist[role] == None:
+            unfilled_roles.append(role)
+
+    # Make a list of all members with unknown attendance
+    unknown_attendees = []
+    for attendee in attendees:
+        if attendee['status'] == 'U':
+            unknown_attendees.append(attendee)
+
+    return render(request, "agenda/confirmation_emails.html", {
+                "meeting": meeting,
+                'attendees': attendees,
+                'unknown_attendees': unknown_attendees,
+            })
+    
+
+def confirm_attendance(request, id, username, status):
+    # Update user's attendence in the database
+    user = User.objects.get(username=username)
+    meeting = Meeting.objects.get(id=id)
+    attendee = Attendee.objects.filter(user=user, meeting=meeting)
+    attendee = attendee[0]
+    attendee.status = status
+    attendee.save()
+    # Redirect the user to the meeting page
+    return HttpResponseRedirect(reverse("agenda:meeting", args=(id,)))
+
+
+def update_guest_list(request, id):
+    # Post method required to update the meeting guest list
+    if request.method == "POST":
+
+        # Get data from the form
+        form = request.POST
+        guest_list = form['guest_list_body']
+        print(form)
+
+        # Get the meeting
+        meeting = Meeting.objects.get(id=id)
+
+        # Update and save meeting guestlist
+        meeting.guestlist = guest_list
+        meeting.save()
+
+        print(meeting.guestlist)
+
+    return HttpResponseRedirect(reverse("agenda:meeting", args=(id,)))
+    
+
 
 
 def login_view(request):

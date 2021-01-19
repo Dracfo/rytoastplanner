@@ -24,6 +24,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [1.0.2-beta] - 2021-Jan-19
+---
+### Added:
+- Meeting Theme to the spreadsheet view
+
+
+
+## [1.0.1-beta] - 2021-Jan-19
+---
+### Changed:
+- Spreadsheet view can only be accessed by loged in users
+- Spreadsheet view only gets role recommendations if the user is an executive
+
+
+
+## [1.0.0-beta] - 2021-Jan-19
+---
+### Added:
+- Print button to individual meeting page
+- Resources navbar dropdown with links to the club role descriptions and basecamp
+- An editable guest list to the individual meeting page
+- Ability to mark yourself as absent or attending from the spreadsheet view
+
+### Changed:
+- on_delete value of Foreign Keys in the rolelist model to be SET_NULL so that all the meeting rolelists aren't deleted when a user is deleted.
+
+### Removed:
+- Ability to create an account, it now has to be done by an executive.
+
+
+
+## [0.7.1-alpha] - 2021-Jan-18
+---
+### Security
+- Set CSRF_COOKIE_SECURE = False and SESSION_COOKIE_SECURE = False to try and fix issues with logging in.
+
+
+
+## [0.7.0-alpha] - 2021-Jan-18
+---
+### Added:
+- Latest features to the README.md file
+- Zoom Master role
+- An email confirmation view for every meeting which can be used to send confirmation emails
+- Ability for members to confirm their attendance at a meeting through a url sent to their email
+
+
+### Removed:
+- Removed attendance information and bug button from the page when it is printed
+- Removed Facilitator and Ballot Counter from displaying in individual meeting and spreadsheet pages
+
+
+
 ## [0.6.2-alpha] - 2021-Jan-16
 ---
 ### Fixed:

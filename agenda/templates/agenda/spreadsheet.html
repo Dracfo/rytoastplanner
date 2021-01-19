@@ -25,8 +25,20 @@
             {% endfor %}
         </thead>
         <tbody>
+            <!--Add the meeting themes to top of spreadsheet-->
+            <tr>
+                <td>
+                    <b>Meeting Theme</b>
+                </td>
+                {% for meeting in meeting_list %}
+                    <td>
+                        {{ meeting.theme }}
+                    </td>
+                {% endfor %}
+            </tr>
+
             {% for role, sign_ups in rolelist.items %}
-                {% if role != 'Meeting_id' %}
+                {% if role != 'Meeting_id' and role != 'Facilitator' and role != 'Ballot Counter' %} <!--Exclude these roles from beign displayed in the spreadsheet-->
                     <tr>
                         <td class="row_start">
                             <b>{{ role }}</b>
@@ -73,6 +85,19 @@
                     </tr>
                 {% endif %}
             {% endfor %}
+
+            <!--Confirm/Deny Attendance Buttons-->
+            <tr>
+                <td>
+                    <b>Are you Attending</b>
+                </td>
+                {% for meeting in meeting_list %}
+                    <td>
+                        <button class="btn btn-success" onclick="update_attendance('{{ meeting.id }}', '{{ request.user.username }}', 'T', this, {{ forloop.counter }})">YES</button>
+                        <button class="btn btn-danger" onclick="update_attendance('{{ meeting.id }}', '{{ request.user.username }}', 'F', this, {{ forloop.counter }})">NO</button>
+                    </td>
+                {% endfor %}
+            </tr>
         </tbody>
     </table>
 </div>
@@ -170,6 +195,72 @@
 
         return false;
     }
+
+
+    function update_attendance(meeting_id, username, status, button, column) {
+
+        // Pass input to API
+        fetch('/attendence', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'user': username,
+                'meeting_id': meeting_id,
+                'status': status
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Print result
+            console.log(result);
+            
+            // Get the absences list
+                absences_tabledata = button.parentElement.parentElement.previousElementSibling.children[column];
+                absences_list = absences_tabledata.innerHTML;
+
+            if (status == "T") {
+                // Search the list for the user
+                if (Number(absences_list.search(username)) > 0){
+
+                    // If the name is in list of absences, remove it
+                    new_absences_list = removeString(absences_list, username);
+
+                    // Update the HTML with the new list
+                    absences_tabledata.innerHTML = new_absences_list
+                }
+            }
+            // Else the user is marking themselves as absent, so add them to the list
+            else{
+                // Check if user is already in the list
+                if (Number(absences_list.search(username)) < 0){
+                    new_absences_list = absences_list + username;
+
+                    // Update the HTML with the new list
+                    absences_tabledata.innerHTML = new_absences_list
+                }
+            }
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+
+        return false;
+    }
+
+
+    // Function for removing a substring from a string from https://www.tutorialspoint.com/removing-a-specific-substring-from-a-string-in-javascript
+    const removeString = (string, separator) => {
+        //we split the string and make it free of separator
+        const separatedArray = string.split(separator);
+        //we join the separatedArray with empty string
+        const separatedString = separatedArray.join("");
+        return separatedString;
+     }
 
 
     function getCookie(name) {

@@ -140,6 +140,7 @@ thead{
     position: -o-sticky;
     position: sticky;
     top: 55px;
+    z-index: 2;
 }
 
 th{
@@ -163,6 +164,10 @@ td p{
 
 .btn.btn-outline-danger.btn-sm{
     padding: 0 4px;
+}
+
+.td-no-padding{
+    padding: 0!important;
 }
 
 
@@ -243,7 +248,7 @@ hr{
 
 
 /*Styles for small screens*/
-@media only screen and (max-width: 1000px) {
+@media screen and (max-width: 1000px) {
     .sidebar{
         display: none;
     }
@@ -259,4 +264,60 @@ hr{
         max-width: 100%;
     }
 
+    .block-on-small-window{
+        display: block;
+        position: fixed!important;
+    }
+
   }
+
+/*Styles for Printing*/
+@media print {
+
+    /*Remove items from view when printing a page*/
+    .do-not-print{
+        display: none;
+    }
+
+    /*Show items only on print*/
+    .only-on-print{
+        display: block!important;
+    }
+
+    /*Change text color to black*/
+    table{
+        border-radius: 0px!important;
+        -webkit-border-radius: 0px;
+        -moz-border-radius: 0px;
+    }
+    thead{
+        background-color: rgb(255,0,0,1)!important;
+        border-radius: 0;
+    }
+    th{
+        color: black;
+        font-size: large!important;
+        border: 1px black solid!important;
+        background-color: green!important;
+        border-radius: 0;
+    }
+
+    td{
+        color: black;
+        font-size: medium!important;
+        border-top: 1px black solid;
+        border-bottom: 1px black solid;
+        border-left: 0px black solid;
+        border-left: 0px black solid;
+    }
+
+    tr{
+        border-left: 2px black solid;
+        border-right: 2px black solid;
+    }
+    /*Resize the main container to fill the scree*/
+    .col-9{
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
