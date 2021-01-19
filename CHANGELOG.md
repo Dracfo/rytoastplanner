@@ -24,6 +24,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [1.0.1-beta] - 2021-Jan-19
+---
+### Changed:
+- Spreadsheet view can only be accessed by loged in users
+- Spreadsheet view only gets role recommendations if the user is an executive
+
+
+
 ## [1.0.0-beta] - 2021-Jan-19
 ---
 ### Added:

@@ -357,6 +357,7 @@ def delete_meeting(request, id):
     })
 
 
+@login_required
 def spreadsheet(request):
 
     # Find meetings in next 4 months
@@ -432,21 +433,22 @@ def spreadsheet(request):
                         rolelist[role_key].append(initial_rolelist[i][role_key])
     
     
-    # Add role recommendations to the rolelist
-    # Iterate through all the roles in the rolelist
-    for role in rolelist:
+    # Add role recommendations to the rolelist if the user is an executive
+    if request.user.executive:
+        # Iterate through all the roles in the rolelist
+        for role in rolelist:
 
-        # Iterate through the holder holders for the role and track the index number (To compare with meeting index number and find the meeting id)
-        for role_index, role_holder in enumerate(rolelist[role]):
+            # Iterate through the holder holders for the role and track the index number (To compare with meeting index number and find the meeting id)
+            for role_index, role_holder in enumerate(rolelist[role]):
 
-            # If no one is assigned to the role, get a list of recommendations. Else skip to next role
-            if role_holder == None:
+                # If no one is assigned to the role, get a list of recommendations. Else skip to next role
+                if role_holder == None:
 
-                for recommendation_index, meeting_id in enumerate(id_list):
+                    for recommendation_index, meeting_id in enumerate(id_list):
 
-                    if recommendation_index == role_index:
+                        if recommendation_index == role_index:
 
-                        rolelist[role][role_index] = ['No Member Assigned', role_recommendations[meeting_id][role]]
+                            rolelist[role][role_index] = ['No Member Assigned', role_recommendations[meeting_id][role]]
 
     return render(request, "agenda/spreadsheet.html", {
         'rolelist': rolelist,
