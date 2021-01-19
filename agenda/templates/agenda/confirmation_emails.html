@@ -64,4 +64,56 @@ E: {{ request.user.email }}
         </form>
     </div>
 
+    <br>
+
+    <!--Role Confirmation Emails Dashboard-->
+    <div class="container container-sm col-title col-8">
+        <h4>Role Confirmations</h4>
+        <p>Send a confirmation email to all members who are signed up for a role during the Meeting.</p>
+        <p>List of members with signed up for a role: 
+            {% for member in attendees %}
+                {% if member.role %}
+                    <b>{{ member.username }}</b>, 
+                {% endif %}
+            {% endfor %}
+        </p>
+
+        <!--The actual email form-->
+        <form action="/confirmation_emails/{{ meeting.id }}" method="POST">
+            {% csrf_token %}
+            <div class="form-group"> <!--Recipients list-->
+                <label for="recipients">Recipients:</label>
+                <input type="text" id="recipients" name="recipients" class="form-control" value="{% for member in attendees %}{% if member.role %}{{ member.email }} {% endif %}{% endfor %}" required>
+            </div>
+            <div class="form-group"> <!--Email that will send out the email-->
+                <label for="from">From:</label>
+                <input type="text" id="from" name="from" class="form-control" value="Rytoastplanner@gmail.com" disabled required>
+            </div>
+            <div class="form-group"> <!--Email subject line-->
+                <label for="subject">Subject:</label>
+                <input type="text" id="subject" name="subject" class="form-control" value="**Confirm your Role** at the Ryerson Toastmasters Meeting on {{ meeting.starttime|date:'M d, Y' }}" required>
+            </div>
+            <div class="form-group"> <!--Email body/message-->
+                <label for="body">Email Message:</label>
+                <textarea type="text" id="body" name="body" class="form-control" rows="10" required>
+Hi Toastmaster $/Name/$,
+
+The Ryerson Toastmasters meeting on {{ meeting.starttime|date:'M d, Y' }} starting at {{meeting.starttime|time }} with the theme {{ meeting.theme }} is coming up!
+
+You are currently signed up to be the $/Roles/$ during the meeting. 
+
+Please email me at {{ request.user.email }} to confirm you will be taking on this role. Nothing long, just say Yes or No.
+
+Stay Toasty,
+
+Toastmaster {{ request.user.username }}
+E: {{ request.user.email }}
+                </textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Role Confirmation Email</button>
+
+
+        </form>
+    </div>
+
 {% endblock %}

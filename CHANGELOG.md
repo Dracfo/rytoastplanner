@@ -20,7 +20,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ### Security
-- 
+-
+
+
+
+## [1.0.0-beta] - 2021-Jan-19
+---
+### Added:
+- Print button to individual meeting page
+- Resources navbar dropdown with links to the club role descriptions and basecamp
+- An editable guest list to the individual meeting page
+- Ability to mark yourself as absent or attending from the spreadsheet view
+
+### Changed:
+- on_delete value of Foreign Keys in the rolelist model to be SET_NULL so that all the meeting rolelists aren't deleted when a user is deleted.
+
+### Removed:
+- Ability to create an account, it now has to be done by an executive.
 
 
 

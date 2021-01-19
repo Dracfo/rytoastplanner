@@ -721,6 +721,7 @@ def confirmation_emails(request, id):
 
     return render(request, "agenda/confirmation_emails.html", {
                 "meeting": meeting,
+                'attendees': attendees,
                 'unknown_attendees': unknown_attendees,
             })
     
@@ -735,6 +736,29 @@ def confirm_attendance(request, id, username, status):
     attendee.save()
     # Redirect the user to the meeting page
     return HttpResponseRedirect(reverse("agenda:meeting", args=(id,)))
+
+
+def update_guest_list(request, id):
+    # Post method required to update the meeting guest list
+    if request.method == "POST":
+
+        # Get data from the form
+        form = request.POST
+        guest_list = form['guest_list_body']
+        print(form)
+
+        # Get the meeting
+        meeting = Meeting.objects.get(id=id)
+
+        # Update and save meeting guestlist
+        meeting.guestlist = guest_list
+        meeting.save()
+
+        print(meeting.guestlist)
+
+    return HttpResponseRedirect(reverse("agenda:meeting", args=(id,)))
+    
+
 
 
 def login_view(request):

@@ -16,12 +16,18 @@
             <br class="only-on-print">
             <h1 class="do-not-print">Ryerson Toastmasters</h1>
             <h3>Meeting: {{ meeting.starttime }} EST</h3>
-            <p style="position: absolute; top: 5px; right: 10px;" class="do-not-print">District 60, Division I, Area 82, Club 01474196</p>
-            <p style="position: absolute; top: 25px; right: 10px;" class="do-not-print"><b>Meetings every Tuesday 6-8 pm</b></p>
-            {% if request.user.executive %}
-            <a href="{% url 'agenda:confirmation_emails' id %}" class="btn btn-primary do-not-print" style="position: absolute; bottom: 5px; right: 120px;">Email Confirmations</a>
-                <a href="{% url 'agenda:edit_meeting' id %}" class="btn btn-primary do-not-print" style="position: absolute; bottom: 5px; right: 10px;">Edit Meeting</a>
-            {% endif %}
+            <p style="position: absolute; top: 5px; right: 10px;" class="do-not-print block-on-small-window">District 60, Division I, Area 82, Club 01474196</p>
+            <p style="position: absolute; top: 25px; right: 10px;" class="do-not-print block-on-small-window"><b>Meetings every Tuesday 6-8 pm</b></p>
+            
+            <!--Group of Buttons to Control Meeting Settings-->
+            <div id="button-group" class="do-not-print"> 
+                <a href="#" class="btn btn-primary do-not-print" onclick="window.print();">Print Agenda</a>
+                {% if request.user.executive %}
+                    <a href="{% url 'agenda:confirmation_emails' id %}" class="btn btn-primary do-not-print">Email Confirmations</a>
+                    <a href="{% url 'agenda:edit_meeting' id %}" class="btn btn-primary do-not-print">Edit Meeting</a>
+                {% endif %}
+            </div>
+            
         </div>
 
         <br>
@@ -198,6 +204,26 @@
                         </tr>
                     </table>
 
+                    <!--Sidebar List of Guests-->
+                    <div>
+                        <table class="table table-hover">
+                            <tr>
+                                <td>
+                                    <b>Guest List:</b>
+                                    {% if request.user.executive or request.user == 'Toastmaster' %}
+                                        <form action="{% url 'agenda:update_guest_list' meeting.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <textarea cols="12" class="form-control" name="guest_list_body">{{ meeting.guestlist }}</textarea>
+                                            <br>
+                                            <button type="submit" class="btn btn-sm btn-primary mb-3">Save Changes</button>
+                                        </form>
+                                    {% else %}
+                                        <p>{{ meeting.guestlist }}</p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
 
             <!--Table for agenda and roles-->
@@ -306,7 +332,7 @@
                             {% if not absentees %}
                                 <p class="card-text">No Members</p>
                             {% endif %}
-                            <button href="" id="decline_attendence_btn" class="btn btn-danger" value="{{ username }}">Confirm NOT Attending</button>
+                            <button href="" class="btn btn-danger" onclick="decline_attendence('{{ meeting.id }}', '{{ request.user.username }}', 'meeting', this)">Confirm NOT Attending</button>
                           </div>
                         </div>
                       </div>
