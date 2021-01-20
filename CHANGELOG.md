@@ -24,6 +24,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [1.1.0-beta] - 2021-Jan-20
+---
+### Added:
+- Email dashboard to send a final reminder about the meeting to everyone attending
+- Email dashboard to ask everyone with confirmed or unknown attendance who doesn't have a role to sing up for one
+- New features to the README.md file
+
+### Changed:
+- The meeting editing permissions so that the Zoom Master and chair can assign memebrs to roles and send meeting emails
+
+### Removed:
+- Roles confirmation email dashboard from confirmation_emails.html because there is no function to confirm a role yet
+
+### Fixed:
+- 'Confirm NOT Attending' button on individual meeting page not responding
+
+### Security
+- Added @login_required to several views to prevent non-logged in users from accessign secure sections of the website
+
+
+
 ## [1.0.2-beta] - 2021-Jan-19
 ---
 ### Added:

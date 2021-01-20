@@ -22,7 +22,7 @@
             <!--Group of Buttons to Control Meeting Settings-->
             <div id="button-group" class="do-not-print"> 
                 <a href="#" class="btn btn-primary do-not-print" onclick="window.print();">Print Agenda</a>
-                {% if request.user.executive %}
+                {% if request.user.executive or user == rolelist.Toastmaster or user == roles.zoom or user == roles.chair %}
                     <a href="{% url 'agenda:confirmation_emails' id %}" class="btn btn-primary do-not-print">Email Confirmations</a>
                     <a href="{% url 'agenda:edit_meeting' id %}" class="btn btn-primary do-not-print">Edit Meeting</a>
                 {% endif %}
@@ -78,7 +78,7 @@
                                     </td>
                                     <td>
                                         {% if value.0 == 'No Member Assigned' %}
-                                            {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                            {% if user.executive or user == rolelist.Toastmaster or user == roles.zoom or user == roles.chair %}
                                                 {% if value.0 == 'No Member Assigned' %}
                                                     {% for member in value %}
                                                         {% if member != 'No Member Assigned' %}  
@@ -102,7 +102,7 @@
                                             {% endif %}
                                         {% else %}
                                             <p>{{ value }}</p>
-                                            {% if value == request.user or user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                            {% if value == request.user or user.executive or user == rolelist.Toastmaster or user == roles.zoom or user == roles.chair %}
                                                 {% if key != "" and key != "Ballot Counter" %}
                                                     <button class="btn btn-outline-danger btn-sm do-not-print" onclick="sign_up('None', '{{ key }}', '{{ meeting.id }}', this);" id="{{ role }}_delete" style="margin: auto!important">X</button>
                                                 {% endif %}
@@ -246,7 +246,7 @@
                                 <!--Role--><td>{{ event.role }}</td>
                                 <!--Presenter--><td>
                                     {% if event.user.0 == 'No Member Assigned' %}
-                                        {% if user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                        {% if user.executive or user == rolelist.Toastmaster or user == roles.zoom or user == roles.chair %}
                                             {% for member in event.user %}
                                                 {% if member != 'No Member Assigned' %}  
                                                     <select id="{{ event.role }}" class="form-control do-not-print" onchange='OnChange(this);'>
@@ -268,7 +268,7 @@
                                         {% endif %}
                                     {% else %}
                                         {{ event.user }}
-                                        {% if event.user == request.user or user.executive or user == rolelist.Toastmaster or user == rolelist.Facilitator %}
+                                        {% if event.user == request.user or user.executive or user == rolelist.Toastmaster or user == roles.zoom or user == roles.chair %}
                                             {% if event.user != None and event.role != "Ballot Counter" %}
                                                 <button class="btn btn-outline-danger btn-sm do-not-print" onclick="sign_up('None', '{{ event.role }}', '{{ meeting.id }}', this);" id="{{ role }}_delete" style="margin: auto!important">X</button>
                                             {% endif %}
@@ -332,7 +332,7 @@
                             {% if not absentees %}
                                 <p class="card-text">No Members</p>
                             {% endif %}
-                            <button href="" class="btn btn-danger" onclick="decline_attendence('{{ meeting.id }}', '{{ request.user.username }}', 'meeting', this)">Confirm NOT Attending</button>
+                            <button href="" class="btn btn-danger" id="decline_attendence_btn" value="{{ username }}">Confirm NOT Attending</button>
                           </div>
                         </div>
                       </div>

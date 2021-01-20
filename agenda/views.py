@@ -4,6 +4,7 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.db.models import Q
 from re import findall
 from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -105,6 +106,9 @@ def meeting(request, id):
 
     # Get the list of all bugs reported
     bugs = Buglist.objects.filter()
+
+    print(rolelist)
+    print(roles[0].zoom)
 
     # Render the individual meeting page
     return render(request, "agenda/meeting.html", {
@@ -279,6 +283,7 @@ def create_meeting(request):
     return HttpResponseRedirect(reverse("agenda:edit_meeting", args=(id,)))
 
 
+@login_required
 def bulk_create_meeting(request):
 
     # Check if the user is submitting the bulk meeting creation form
@@ -331,8 +336,7 @@ def bulk_create_meeting(request):
     })
 
 
-
-
+@login_required
 def delete_meeting(request, id):
 
     # Check if user is an executive
@@ -608,6 +612,7 @@ def bug_list(request):
     })
 
 
+@login_required
 def change_event_number(request):
     # Updating attendence must be via POST request
     if request.method != "POST":
@@ -661,9 +666,6 @@ def change_event_number(request):
 
 @login_required
 def confirmation_emails(request, id):
-    # If the user is not an executive reroute them to the main page
-    if request.user.executive == False:
-        return HttpResponseRedirect(reverse('agenda:index'))
 
     # Check if an email form is being submitted
     if request.method =="POST":
@@ -690,7 +692,7 @@ def confirmation_emails(request, id):
 
     # Get all necesarry information from database
     meeting = Meeting.objects.get(id=id)  # Get the meeting user wants to make confirmation emails for
-    attendees = Attendee.objects.filter(meeting=meeting).values()  # Get the users in attendence at the meeting
+    attendees = Attendee.objects.filter(meeting=meeting).filter(~Q(status='F')).values()  # Get the users in attendence at the meeting
 
     for attendee in attendees:  # Add contact information to each attendee
         # Get the User information
@@ -714,17 +716,29 @@ def confirmation_emails(request, id):
     for role in rolelist:
         if rolelist[role] == None:
             unfilled_roles.append(role)
+    
+    # Make a list of members without a role
+    no_role_attendees = []
+    for attendee in attendees:
+        if attendee['role'] == []:
+            no_role_attendees.append(attendee)
 
-    # Make a list of all members with unknown attendance
+    # Make a list of members with unknown attendance and a list with confirmed attendance
     unknown_attendees = []
+    confirmed_attendees = []
     for attendee in attendees:
         if attendee['status'] == 'U':
             unknown_attendees.append(attendee)
+        elif attendee['status'] == 'T':
+            confirmed_attendees.append(attendee)
 
     return render(request, "agenda/confirmation_emails.html", {
                 "meeting": meeting,
                 'attendees': attendees,
                 'unknown_attendees': unknown_attendees,
+                'confirmed_attendees': confirmed_attendees,
+                'unfilled_roles': unfilled_roles,
+                'no_role_attendees': no_role_attendees,
             })
     
 
@@ -740,6 +754,7 @@ def confirm_attendance(request, id, username, status):
     return HttpResponseRedirect(reverse("agenda:meeting", args=(id,)))
 
 
+@login_required
 def update_guest_list(request, id):
     # Post method required to update the meeting guest list
     if request.method == "POST":
@@ -760,8 +775,6 @@ def update_guest_list(request, id):
 
     return HttpResponseRedirect(reverse("agenda:meeting", args=(id,)))
     
-
-
 
 def login_view(request):
     if request.method == "POST":
