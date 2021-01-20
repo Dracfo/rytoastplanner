@@ -31,11 +31,13 @@ Visit the live website: https://rytoastplanner.herokuapp.com/
 - Manage the events that occur at each meeting (duration, description, role, order, user)
 - View the meetings individually, as a list, or as a spreadsheet.
 - Bulk create a group of meeting using the 'Bulk Create Meetings' button
+- Send emails to members regarding attendance, role sign ups, and general meeting reminders
 
 #### Individual Meeting View
 - View all the events of the meeting, including start times, duration, member assigned, and event description
-- A sidebar with meeting information, helpful links, a list of the club executives with links to their LinkedIn, and a list of all the meeting roles with the members who are scheduled for them.
+- A sidebar with meeting information, helpful links, a list of the club executives with links to their LinkedIn, a list of all the meeting roles with the members who are scheduled for them, and a guest list.
 - Ability to confirm or deny attendance at the meeting
+- Ability to print out a formatted meeting agenda
 
 #### Meeting List View
 - View the date of each meeting with a link to view the full meeting page
@@ -47,6 +49,7 @@ Visit the live website: https://rytoastplanner.herokuapp.com/
 - View all of the role holders for all of the future meetings in a spreadsheet format
 - Members can sign up for any role at any meeting
 - Executives can assign any available member to any future meeting
+- Mark if the user is going to be attending the meeting or not
 
 #### Role Scheduling
 - Non-logged-in users can view all role holders for each meeting.
@@ -85,8 +88,8 @@ The following is a list of all the significant files in the web app and a descri
         - There is a form for the bug list.
         - There is also a function to display 'deleted' where a user used to be if their account is deleted.
     - **\agenda\templates\views.py** contains all the views and many of the functions of the web app.
-        - The views are for the index, meeting, meeting list, edit meeting, create a meeting, delete a meeting, spreadsheet, report a bug, see the bug list, register an account, and create a user.
-        - The API functions it contains are to update attendance records and sign up for a role.
+        - The views are for the index, meeting, meeting list, edit meeting, create a meeting, delete a meeting, spreadsheet, report a bug, see the bug list, register an account, create a user, and send email confirmations.
+        - The API functions it contains are to update attendance records, sign up for a role, make a recommendations list for one role, change an event number, and add a new meeting event.
     - **\agenda\templates\functions.py** contains all the helper functions for the web app. The functions are to:
         - Update a meeting role list
         - Update one role in the database
@@ -117,7 +120,6 @@ View the [CHANGELOG](CHANGELOG.md)
 Future Features:
 - Calendar page to see all meetings at a glance and add them to the user's 3rd party calendar.
 - A panel for executives to manage members' accounts.
-- Printer-friendly individual meeting view
 - Printer-friendly spreadsheet view
 - Ability to create and manage new Toastmasters Clubs
 - Ability for a user to manage their profile (Username, email, password, image, etc)
